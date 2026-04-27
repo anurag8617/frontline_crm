@@ -1,0 +1,14 @@
+{
+  "name": "frontline-crm",
+  "version": "1.0.0",
+  "description": "Frontline Island Bar & Grill — Production CRM",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "install:all": "cd backend && npm install",
+    "start": "cd backend && node server.js",
+    "dev": "cd backend && npx nodemon server.js",
+    "setup": "npm run install:all && echo '\\n✅ Setup complete! Copy .env.example to backend/.env, fill in credentials, then: npm start'"
+  }
+}

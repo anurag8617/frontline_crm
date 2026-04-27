@@ -1,0 +1,11 @@
+# Netlify configuration for Frontline CRM frontend
+# Only needed if deploying frontend separately to Netlify.
+# If serving both frontend + backend from Render, ignore this file.
+
+[build]
+  publish = "frontend"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

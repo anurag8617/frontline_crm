@@ -1,0 +1,2641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Frontline Island Bar & Grill — Growth CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/* ════ LOGIN SCREEN ════════════════════════════════════ */
+#login-screen{
+  display:none;position:fixed;inset:0;
+  background:linear-gradient(135deg,#0a1628 0%,#0d1f3c 40%,#0a2a2a 100%);
+  z-index:9000;align-items:center;justify-content:center;
+}
+#login-screen.active{display:flex;}
+.login-box{
+  background:#0f1f3d;border:1px solid #1e3a5f;border-radius:18px;
+  padding:38px 34px;width:100%;max-width:400px;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo-name{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:#00e5cc;letter-spacing:.06em;}
+.login-logo-sub{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:#f5c842;margin-top:4px;}
+.login-logo-tag{font-size:.65rem;color:#8fa3b8;margin-top:5px;}
+.login-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.1em;text-transform:uppercase;color:#8fa3b8;text-align:center;margin-bottom:20px;}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:#8fa3b8;margin-bottom:5px;}
+.login-field input{width:100%;background:#091529;border:1px solid #1e3a5f;border-radius:9px;padding:11px 13px;color:#fff;font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:#00b4a0;}
+.login-btn{width:100%;background:#00b4a0;color:#0a1628;border:none;border-radius:9px;padding:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .2s;margin-top:6px;}
+.login-btn:hover{background:#00e5cc;}
+.login-btn:disabled{background:#1e3a5f;color:#8fa3b8;cursor:not-allowed;}
+.login-error{background:rgba(230,57,70,.15);border:1px solid rgba(230,57,70,.4);color:#ff8888;border-radius:8px;padding:9px 13px;font-size:.8rem;margin-bottom:13px;display:none;}
+.login-error.show{display:block;}
+.login-footer{text-align:center;margin-top:18px;font-size:.66rem;color:#8fa3b8;}
+
+/* ════ SEND EMAIL MODAL ════════════════════════════════ */
+#send-email-modal .modal{max-width:540px;}
+.email-field{margin-bottom:10px;}
+.email-field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#8fa3b8;margin-bottom:4px;}
+.email-field input,.email-field textarea{width:100%;background:#091529;border:1px solid #1e3a5f;border-radius:7px;padding:8px 10px;color:#fff;font-family:'Barlow',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s;}
+.email-field input:focus,.email-field textarea:focus{border-color:#00b4a0;}
+.email-field textarea{min-height:160px;resize:vertical;}
+
+/* ════ LOADING OVERLAY ═════════════════════════════════ */
+#app-loading{display:none;position:fixed;inset:0;background:rgba(10,22,40,.9);z-index:8000;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+#app-loading.active{display:flex;}
+.loading-spinner{width:40px;height:40px;border:3px solid #1e3a5f;border-top-color:#00b4a0;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;color:#8fa3b8;letter-spacing:.1em;}
+
+/* ════ USER BADGE IN SIDEBAR ═══════════════════════════ */
+.user-badge{display:flex;align-items:center;gap:8px;padding:9px 13px;background:rgba(0,180,160,.08);border-radius:8px;margin:8px 12px;border:1px solid rgba(0,180,160,.2);}
+.user-avatar{width:28px;height:28px;background:var(--teal-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-family:'Bebas Neue',sans-serif;color:var(--white);}
+.user-info{flex:1;}
+.user-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;color:var(--teal-light);}
+.user-role{font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;}
+.logout-btn{background:none;border:none;color:var(--text-muted);font-size:.75rem;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;padding:2px 6px;border-radius:5px;transition:color .15s;}
+.logout-btn:hover{color:var(--danger);}
+
+/* ════ IMPORT CSV ENHANCEMENTS ══════════════════════════ */
+.csv-drop-zone{border:2px dashed #1e3a5f;border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:11px;}
+.csv-drop-zone:hover,.csv-drop-zone.dragover{border-color:#00b4a0;background:rgba(0,180,160,.05);}
+.csv-drop-icon{font-size:2rem;margin-bottom:7px;}
+.csv-drop-text{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;color:#8fa3b8;letter-spacing:.06em;}
+.csv-drop-sub{font-size:.72rem;color:#4a6a8a;margin-top:3px;}
+#csv-file-input{display:none;}
+</style>
+:root{
+  --teal:#00b4a0;--teal-dark:#007a6d;--teal-light:#00e5cc;
+  --gold:#f5c842;--gold-dark:#c9a000;--red:#e63946;
+  --navy:#0a1628;--navy-mid:#112240;--navy-light:#1a3560;
+  --white:#fff;--text-muted:#8fa3b8;
+  --card-bg:#0f1f3d;--card-border:#1e3a5f;--input-bg:#091529;
+  --success:#22c55e;--warning:#f59e0b;--danger:#ef4444;
+  --hot:#ff4444;--cold:#4a9eff;
+  --mod-catering:#f5a623;--mod-soccer:#00b4a0;--mod-custom:#9b59b6;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Barlow',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+
+/* ── SIDEBAR ── */
+#sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--navy-mid);border-right:2px solid var(--teal-dark);display:flex;flex-direction:column;z-index:100;transition:transform .3s;overflow-y:auto;}
+.sidebar-logo{padding:16px 16px 12px;border-bottom:1px solid var(--card-border);}
+.logo-name{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:var(--teal-light);line-height:1.1;letter-spacing:.04em;}
+.logo-sub{font-size:.62rem;color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-top:2px;}
+.logo-addr{font-size:.58rem;color:var(--text-muted);margin-top:3px;}
+.nav-section{padding:10px 0 3px 16px;font-size:.56rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.16em;color:var(--text-muted);text-transform:uppercase;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.86rem;color:#aac0d8;letter-spacing:.03em;transition:background .15s,color .15s;border-left:3px solid transparent;}
+.nav-item:hover{background:var(--navy-light);color:var(--white);}
+.nav-item.active{background:linear-gradient(90deg,rgba(0,180,160,.18),transparent);color:var(--teal-light);border-left-color:var(--teal);}
+.nav-item.mod-active{border-left-color:var(--gold);color:var(--gold);background:linear-gradient(90deg,rgba(245,200,66,.1),transparent);}
+.nav-icon{font-size:.95rem;width:17px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid var(--card-border);font-size:.65rem;color:var(--text-muted);}
+#module-nav-items{} /* dynamic */
+
+/* ── HAMBURGER ── */
+#hamburger{display:none;position:fixed;top:12px;left:12px;z-index:200;background:var(--teal-dark);border:none;color:white;width:40px;height:40px;border-radius:8px;font-size:1.3rem;cursor:pointer;}
+
+/* ── MAIN ── */
+#main{margin-left:240px;padding:22px 20px;min-height:100vh;}
+.page{display:none;}.page.active{display:block;}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.topbar h1{font-family:'Bebas Neue',sans-serif;font-size:1.85rem;color:var(--teal-light);letter-spacing:.06em;}
+.topbar-badge{padding:4px 12px;border-radius:20px;font-size:.7rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.08em;}
+.badge-teal{background:var(--teal-dark);color:var(--teal-light);}
+.badge-gold{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.3);}
+.badge-soccer{background:rgba(0,180,160,.15);color:var(--teal-light);border:1px solid var(--teal-dark);}
+.badge-catering{background:rgba(245,166,35,.15);color:var(--mod-catering);border:1px solid rgba(245,166,35,.3);}
+
+/* ── MODULE BANNER ── */
+.mod-banner{border-radius:12px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.mod-banner.catering{background:linear-gradient(135deg,rgba(245,166,35,.15),rgba(245,166,35,.05));border:1px solid rgba(245,166,35,.3);}
+.mod-banner.soccer{background:linear-gradient(135deg,rgba(0,180,160,.15),rgba(0,180,160,.05));border:1px solid rgba(0,180,160,.3);}
+.mod-banner.custom{background:linear-gradient(135deg,rgba(155,89,182,.15),rgba(155,89,182,.05));border:1px solid rgba(155,89,182,.3);}
+.mod-banner-icon{font-size:2rem;}
+.mod-banner-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.05em;}
+.mod-banner-desc{font-size:.78rem;color:var(--text-muted);margin-top:2px;}
+.mod-banner-goal{font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.08);margin-left:auto;}
+
+/* ── CARDS ── */
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:16px;}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;color:var(--gold);letter-spacing:.07em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:7px;}
+
+/* ── STAT GRID ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px;margin-bottom:18px;}
+.stat-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:11px;padding:14px 12px;position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.stat-card.teal::before{background:var(--teal);}
+.stat-card.gold::before{background:var(--gold);}
+.stat-card.red::before{background:var(--red);}
+.stat-card.green::before{background:var(--success);}
+.stat-card.orange::before{background:var(--mod-catering);}
+.stat-card.purple::before{background:#9b59b6;}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;color:var(--white);}
+.stat-label{font-family:'Barlow Condensed',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-top:2px;}
+.stat-icon{position:absolute;right:10px;top:10px;font-size:1.5rem;opacity:.1;}
+
+/* ── GRIDS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 15px;border-radius:8px;border:none;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.84rem;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .2s;text-decoration:none;}
+.btn-primary{background:var(--teal);color:var(--navy);}
+.btn-primary:hover{background:var(--teal-light);}
+.btn-gold{background:var(--gold);color:var(--navy);}
+.btn-gold:hover{background:#ffe066;}
+.btn-ghost{background:transparent;border:1px solid var(--card-border);color:var(--text-muted);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.btn-danger{background:var(--danger);color:white;}
+.btn-catering{background:var(--mod-catering);color:var(--navy);}
+.btn-soccer{background:var(--teal);color:var(--navy);}
+.btn-sm{padding:4px 10px;font-size:.72rem;}
+.btn-xs{padding:3px 7px;font-size:.66rem;}
+
+/* ── FORMS — full iPhone autocorrect/autocap/spellcheck disabled ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.form-row.three{grid-template-columns:1fr 1fr 1fr;}
+.form-row.one{grid-template-columns:1fr;}
+@media(max-width:640px){.form-row,.form-row.three{grid-template-columns:1fr;}}
+.form-group{display:flex;flex-direction:column;gap:4px;}
+.form-group label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+.fc{background:var(--input-bg);border:1px solid var(--card-border);border-radius:7px;padding:8px 10px;color:var(--white);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;width:100%;}
+.fc:focus{border-color:var(--teal);}
+.fc option{background:var(--navy-mid);}
+textarea.fc{resize:vertical;min-height:76px;}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.64rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.b-new{background:#1a3560;color:#7eb8ff;}
+.b-contacted{background:#14403a;color:var(--teal-light);}
+.b-followup{background:#3d2a00;color:var(--gold);}
+.b-quoted{background:#1a2a3d;color:#66aaff;}
+.b-booked{background:#14402a;color:var(--success);}
+.b-notinterested{background:#3d1a1a;color:#ff8888;}
+.b-nurture{background:#2a1a3d;color:#bb88ff;}
+.b-repeat{background:#143d2a;color:#66ffaa;}
+.b-hot{background:rgba(255,68,68,.2);color:#ff8888;border:1px solid rgba(255,68,68,.4);}
+.b-warm{background:rgba(245,158,11,.2);color:var(--gold);border:1px solid rgba(245,158,11,.4);}
+.b-cold{background:rgba(74,158,255,.2);color:#7eb8ff;border:1px solid rgba(74,158,255,.4);}
+
+/* ── MODULE TAG ── */
+.mod-tag{font-size:.6rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;}
+.mod-tag.catering{background:rgba(245,166,35,.15);color:var(--mod-catering);border:1px solid rgba(245,166,35,.3);}
+.mod-tag.soccer{background:rgba(0,180,160,.15);color:var(--teal-light);border:1px solid rgba(0,180,160,.3);}
+.mod-tag.both{background:rgba(155,89,182,.15);color:#bb88ff;border:1px solid rgba(155,89,182,.3);}
+.mod-tag.custom{background:rgba(155,89,182,.15);color:#bb88ff;border:1px solid rgba(155,89,182,.3);}
+
+/* ── TYPE TAG ── */
+.type-tag{font-size:.6rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.25);}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);padding:7px 9px;text-align:left;border-bottom:1px solid var(--card-border);}
+td{padding:8px 9px;font-size:.8rem;border-bottom:1px solid rgba(30,58,95,.45);vertical-align:middle;}
+tr:hover td{background:rgba(0,180,160,.03);}
+.td-org{font-weight:600;}
+.td-sub{color:var(--text-muted);font-size:.72rem;}
+
+/* ── SCORE BAR ── */
+.score-wrap{display:flex;align-items:center;gap:5px;}
+.score-bar{flex:1;height:5px;background:var(--input-bg);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;}
+.score-num{font-family:'Bebas Neue',sans-serif;font-size:.86rem;min-width:22px;}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,10,20,.9);z-index:500;align-items:flex-start;justify-content:center;padding:20px 12px;overflow-y:auto;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--navy-mid);border:1px solid var(--card-border);border-radius:14px;padding:22px;width:100%;max-width:640px;position:relative;margin:auto;}
+.modal-wide{max-width:800px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;color:var(--teal-light);letter-spacing:.05em;margin-bottom:16px;}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-muted);font-size:1.25rem;cursor:pointer;}
+.modal-close:hover{color:var(--red);}
+
+/* ── PIPELINE ── */
+.pipeline-wrap{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;}
+.pipeline-col{min-width:240px;flex-shrink:0;}
+.pipeline-col-head{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;padding:7px 11px;border-bottom:2px solid var(--card-border);margin-bottom:9px;display:flex;justify-content:space-between;}
+.pipeline-count{background:var(--input-bg);border-radius:20px;padding:1px 7px;font-size:.68rem;color:var(--white);}
+.pipeline-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:9px;padding:11px;margin-bottom:9px;}
+.pipeline-card-org{font-weight:600;font-size:.85rem;margin-bottom:2px;}
+.pipeline-card-sub{font-size:.72rem;color:var(--text-muted);margin-bottom:7px;}
+.pipeline-card-foot{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+
+/* ── NOTES ── */
+.note-entry{background:var(--input-bg);border-left:3px solid var(--teal);border-radius:0 7px 7px 0;padding:8px 11px;margin-bottom:7px;}
+.note-meta{font-size:.67rem;color:var(--text-muted);margin-bottom:3px;font-family:'Barlow Condensed',sans-serif;}
+.note-meta span{color:var(--gold);font-weight:700;}
+.note-text{font-size:.8rem;line-height:1.5;}
+
+/* ── TEMPLATES ── */
+.tmpl-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:9px;overflow:hidden;margin-bottom:12px;}
+.tmpl-head{background:linear-gradient(90deg,var(--teal-dark),var(--navy-light));padding:10px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.tmpl-head-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:.05em;}
+.tmpl-body{padding:14px;display:none;}
+.tmpl-body.open{display:block;}
+.tmpl-subject{font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;}
+.tmpl-text{background:var(--input-bg);border:1px solid var(--card-border);border-radius:7px;padding:11px;font-size:.79rem;line-height:1.7;color:#d0e0f0;white-space:pre-line;max-height:200px;overflow-y:auto;}
+
+/* ── DRAFT CARD ── */
+.draft-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.draft-org{font-weight:700;font-size:.92rem;margin-bottom:1px;}
+.draft-role{font-size:.75rem;color:var(--text-muted);margin-bottom:8px;}
+.draft-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.draft-body-text{background:var(--input-bg);border:1px solid var(--card-border);border-radius:7px;padding:11px;font-size:.78rem;line-height:1.7;color:#d0e0f0;white-space:pre-line;max-height:160px;overflow-y:auto;margin-bottom:9px;}
+
+/* ── CALENDAR ── */
+.cal-item{display:flex;align-items:flex-start;gap:11px;padding:10px 0;border-bottom:1px solid var(--card-border);}
+.cal-item:last-child{border-bottom:none;}
+.cal-date-box{min-width:44px;text-align:center;border-radius:7px;padding:6px 4px;}
+.cal-day{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;line-height:1;}
+.cal-month{font-size:.55rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.cal-info{flex:1;}
+.cal-match{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;}
+.cal-detail{font-size:.7rem;color:var(--text-muted);margin-top:2px;}
+.cal-tags{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
+.cal-tag{font-size:.58rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:9px;}
+
+/* ── REMINDER ── */
+.rem-item{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--card-border);}
+.rem-item:last-child{border-bottom:none;}
+.rem-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rem-info{flex:1;}
+.rem-org{font-weight:600;font-size:.85rem;}
+.rem-sub{font-size:.7rem;color:var(--text-muted);margin-top:1px;}
+
+/* ── SEQ TIMELINE ── */
+.seq-tl{position:relative;padding-left:20px;}
+.seq-tl::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--card-border);}
+.seq-step{position:relative;margin-bottom:11px;}
+.seq-dot{position:absolute;left:-17px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid var(--teal-dark);background:var(--navy);}
+.seq-dot.done{background:var(--teal);border-color:var(--teal);}
+.seq-dot.cur{background:var(--gold);border-color:var(--gold);box-shadow:0 0 6px rgba(245,200,66,.5);}
+.seq-day{font-family:'Barlow Condensed',sans-serif;font-size:.66rem;font-weight:700;letter-spacing:.1em;color:var(--text-muted);margin-bottom:1px;}
+.seq-label{font-size:.8rem;font-weight:600;}
+.seq-action{font-size:.73rem;color:var(--text-muted);}
+
+/* ── IMPORT ── */
+.imp-card{background:var(--input-bg);border:1px solid var(--card-border);border-radius:8px;padding:11px 13px;margin-bottom:8px;}
+.imp-card.dup{border-color:var(--warning);background:rgba(245,158,11,.05);}
+.imp-field{display:flex;gap:5px;margin-bottom:2px;font-size:.78rem;}
+.imp-key{color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;min-width:85px;}
+.dup-tag{background:rgba(245,158,11,.2);color:var(--gold);border:1px solid rgba(245,158,11,.5);font-size:.64rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;padding:1px 6px;border-radius:9px;}
+
+/* ── MODULE BUILDER ── */
+.mod-builder-card{background:var(--card-bg);border:2px dashed var(--card-border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;}
+.mod-builder-card:hover{border-color:var(--gold);background:rgba(245,200,66,.04);}
+.existing-mod-card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:16px;position:relative;}
+.existing-mod-card .mod-color-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;}
+
+/* ── QUICK PILLS ── */
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:13px;}
+.pill{background:var(--input-bg);border:1px solid var(--card-border);border-radius:20px;padding:4px 12px;font-size:.7rem;font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.07em;color:var(--text-muted);cursor:pointer;transition:all .15s;}
+.pill:hover,.pill.active{border-color:var(--teal);color:var(--teal-light);background:rgba(0,180,160,.1);}
+.pill.catering-active{border-color:var(--mod-catering);color:var(--mod-catering);background:rgba(245,166,35,.1);}
+.pill.soccer-active{border-color:var(--teal);color:var(--teal-light);background:rgba(0,180,160,.1);}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.filter-bar input,.filter-bar select{background:var(--input-bg);border:1px solid var(--card-border);border-radius:7px;padding:6px 9px;color:var(--white);font-family:'Barlow',sans-serif;font-size:.81rem;outline:none;}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--teal);}
+.filter-bar input{flex:1;min-width:150px;}
+
+/* ── DIVIDER ── */
+hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
+
+/* ── CAMPAIGN STEP ── */
+.camp-step{display:flex;gap:11px;align-items:flex-start;margin-bottom:11px;}
+.camp-num{min-width:28px;height:28px;background:var(--teal-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--white);flex-shrink:0;}
+.camp-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.88rem;color:var(--gold);margin-bottom:2px;}
+.camp-desc{font-size:.78rem;color:#aac0d8;line-height:1.5;}
+
+/* ── TAB BAR ── */
+.tab-bar{display:flex;gap:4px;margin-bottom:13px;flex-wrap:wrap;}
+.tab-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--card-border);background:transparent;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.76rem;letter-spacing:.06em;cursor:pointer;transition:all .15s;}
+.tab-btn.active{background:var(--teal-dark);color:var(--white);border-color:var(--teal);}
+.tab-panel{display:none;}.tab-panel.active{display:block;}
+
+/* ── SOCIAL ── */
+.post-out{background:var(--input-bg);border:1px solid var(--teal-dark);border-radius:9px;padding:14px;font-size:.86rem;line-height:1.7;min-height:100px;white-space:pre-line;color:#f4ede0;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:30px 14px;color:var(--text-muted);}
+.empty .ico{font-size:2rem;margin-bottom:8px;}
+.empty p{font-size:.82rem;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:16px;right:16px;background:var(--teal-dark);color:var(--white);padding:10px 18px;border-radius:9px;font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:.88rem;z-index:1000;transform:translateY(60px);opacity:0;transition:all .3s;}
+#toast.show{transform:translateY(0);opacity:1;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%);}
+  #sidebar.open{transform:translateX(0);}
+  #main{margin-left:0;padding:12px;padding-top:54px;}
+  #hamburger{display:flex;align-items:center;justify-content:center;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+  .pipeline-wrap{flex-direction:column;}
+  .pipeline-col{min-width:unset;}
+}
+</head>
+<body>
+
+<!-- ════ LOGIN SCREEN ════════════════════════════════════ -->
+<div id="login-screen" class="active">
+  <div class="login-box">
+    <div class="login-logo">
+      <div style="font-size:2.2rem;margin-bottom:8px">🍽️⚽</div>
+      <div class="login-logo-name">Frontline Island</div>
+      <div class="login-logo-name" style="color:#f5c842">Bar & Grill</div>
+      <div class="login-logo-sub">Growth CRM</div>
+      <div class="login-logo-tag">2213 W. 3rd St · Chester PA 19013</div>
+    </div>
+    <div class="login-title">🔒 Staff Login</div>
+    <div class="login-error" id="login-error">Invalid username or password.</div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-username" placeholder="Enter username"
+        autocomplete="username" autocorrect="off" autocapitalize="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()"/>
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-password" placeholder="Enter password"
+        autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">🔓 Sign In</button>
+    <div class="login-footer">Protected CRM — authorized staff only</div>
+  </div>
+</div>
+
+<!-- ════ APP LOADING ══════════════════════════════════════ -->
+<div id="app-loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading CRM data...</div>
+</div>
+
+<!-- ════ SEND EMAIL MODAL ═════════════════════════════════ -->
+<div class="modal-overlay" id="send-email-modal">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-close" onclick="document.getElementById('send-email-modal').classList.remove('open')">✕</button>
+    <div class="modal-title">✉️ Send Email</div>
+    <input type="hidden" id="send-email-lead-id"/>
+    <input type="hidden" id="send-email-module"/>
+    <div class="email-field">
+      <label>To</label>
+      <input type="email" id="send-email-to" placeholder="recipient@email.com"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    </div>
+    <div class="email-field">
+      <label>Subject</label>
+      <input type="text" id="send-email-subject"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    </div>
+    <div class="email-field">
+      <label>Message</label>
+      <textarea id="send-email-body"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('send-email-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="send-email-btn" onclick="doSendEmail()">✉️ Send Email</button>
+    </div>
+  </div>
+</div>
+
+<body>
+
+<button id="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-name">🍽️⚽ Frontline Island</div>
+    <div class="logo-name" style="color:var(--gold)">Bar & Grill</div>
+    <div class="logo-sub">Growth CRM</div>
+    <div class="logo-addr">2213 W. 3rd St · Chester PA 19013</div>
+  </div>
+
+  <div class="nav-section">Platform</div>
+  <div class="nav-item active" onclick="showPage('home')"><span class="nav-icon">🏠</span> Home</div>
+  <div class="nav-item" onclick="showPage('all-leads')"><span class="nav-icon">🎯</span> All Leads</div>
+  <div class="nav-item" onclick="showPage('pipeline')"><span class="nav-icon">📋</span> Pipeline</div>
+  <div class="nav-item" onclick="showPage('import')"><span class="nav-icon">📥</span> Import Leads</div>
+  <div class="nav-item" onclick="showPage('reminders')"><span class="nav-icon">🔔</span> Reminders</div>
+
+  <div class="nav-section">Modules</div>
+  <div class="nav-item" onclick="showModule('catering')"><span class="nav-icon">🍽️</span> Catering</div>
+  <div class="nav-item" onclick="showModule('soccer')"><span class="nav-icon">⚽</span> Soccer Fans</div>
+  <div id="module-nav-items"></div>
+  <div class="nav-item" onclick="showPage('modules')"><span class="nav-icon">➕</span> Add Module</div>
+
+  <div class="nav-section">Tools</div>
+  <div class="nav-item" onclick="showPage('calendar')"><span class="nav-icon">📅</span> Soccer Calendar</div>
+  <div class="nav-item" onclick="showPage('social')"><span class="nav-icon">📱</span> Social Generator</div>
+
+  <div class="user-badge">
+    <div class="user-avatar" id="sidebar-user-avatar">R</div>
+    <div class="user-info">
+      <div class="user-name" id="sidebar-user-name">Loading...</div>
+      <div class="user-role" id="sidebar-user-role">Staff</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()" title="Sign Out">⏻</button>
+  </div>
+  <div class="sidebar-footer">
+    frontlineislandbarandgrill1@gmail.com<br>
+    <a href="https://frontlinebar.com" style="color:var(--teal);text-decoration:none">frontlinebar.com</a><br>
+    <a href="https://www.ezcater.com/catering/frontline-island-bar-and-grill-3" style="color:var(--gold);text-decoration:none">EZCater ↗</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+<!-- HOME DASHBOARD -->
+<div class="page active" id="page-home">
+  <div class="topbar"><h1>📊 Frontline Growth CRM</h1><span class="topbar-badge badge-teal">All Modules</span></div>
+  <div class="stat-grid" id="home-stats"></div>
+  <div class="grid-2" style="margin-bottom:13px">
+    <div class="card" id="home-mod-catering"></div>
+    <div class="card" id="home-mod-soccer"></div>
+  </div>
+  <div id="home-custom-mods" style="margin-bottom:13px"></div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">🔥 Hottest Leads</div><div id="home-hot"></div></div>
+    <div class="card"><div class="card-title">🔴 Overdue Follow-Ups</div><div id="home-overdue"></div></div>
+  </div>
+</div>
+
+<!-- ALL LEADS -->
+<div class="page" id="page-all-leads">
+  <div class="topbar">
+    <h1>🎯 All Leads</h1>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">💾 Export CSV</button>
+      <button class="btn btn-primary btn-sm" onclick="openLeadModal()">+ Add Lead</button>
+    </div>
+  </div>
+  <div class="pills" id="all-leads-pills">
+    <span class="pill active" onclick="setLeadFilter('module','',this)">⚡ All</span>
+    <span class="pill" onclick="setLeadFilter('module','catering',this)">🍽️ Catering</span>
+    <span class="pill" onclick="setLeadFilter('module','soccer',this)">⚽ Soccer</span>
+    <span class="pill" onclick="setLeadFilter('module','both',this)">🔀 Both Modules</span>
+  </div>
+  <div class="filter-bar">
+    <input type="text" id="search-all" placeholder="🔍 Search org, contact..."
+      oninput="renderAllLeads()"
+      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    <select id="filter-all-status" onchange="renderAllLeads()">
+      <option value="">All Statuses</option>
+      <option>New</option><option>Contacted</option><option>Follow-up Needed</option>
+      <option>Quoted</option><option>Booked</option><option>Repeat Customer</option>
+      <option>Not Interested</option><option>Nurture</option>
+    </select>
+    <select id="filter-all-priority" onchange="renderAllLeads()">
+      <option value="">All Priorities</option><option>Hot</option><option>Warm</option><option>Cold</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="table-wrap"><table>
+      <thead><tr>
+        <th>Organization</th><th>Module(s)</th><th>Type</th>
+        <th>Score</th><th>Status</th><th>Follow-Up</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="all-leads-tbody"></tbody>
+    </table></div>
+    <div id="all-leads-empty" class="empty" style="display:none">
+      <div class="ico">🎯</div><p>No leads found.</p>
+    </div>
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<div class="page" id="page-pipeline">
+  <div class="topbar">
+    <h1>📋 Pipeline</h1>
+    <div class="pills" style="margin-bottom:0">
+      <span class="pill active" onclick="setPipelineModule('',this)">All</span>
+      <span class="pill" onclick="setPipelineModule('catering',this)">🍽️ Catering</span>
+      <span class="pill" onclick="setPipelineModule('soccer',this)">⚽ Soccer</span>
+    </div>
+  </div>
+  <div class="pipeline-wrap" id="pipeline-wrap"></div>
+</div>
+
+<!-- IMPORT -->
+<div class="page" id="page-import">
+  
+<div class="topbar"><h1>📥 Import Leads</h1><span class="topbar-badge badge-teal">Kimi Format</span></div>
+  <div class="grid-2" style="margin-bottom:13px">
+    <div class="card">
+      <div class="card-title">📋 Paste Kimi Leads</div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Assign to Module</label>
+        <select class="fc" id="import-module">
+          <option value="catering">🍽️ Catering</option>
+          <option value="soccer">⚽ Soccer</option>
+          <option value="both">🔀 Both Modules</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Paste Kimi Text</label>
+        <textarea class="fc" id="import-text" rows="12"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="Organization: Shiloh Baptist Church&#10;Contact: Pastor / Events Chair&#10;Email:&#10;Phone:&#10;Type: Church&#10;Event Date: 2026-05-15&#10;Priority: High&#10;Notes: Senior Fellowship meal event&#10;---"></textarea>
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-primary btn-sm" onclick="parseImport()">🔍 Preview</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-text').value=''">Clear</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📖 Format Guide</div>
+      <div style="font-size:.76rem;color:#aac0d8;line-height:2;background:var(--input-bg);border-radius:7px;padding:11px;font-family:monospace">
+        Organization: [name]<br>Contact: [role or name]<br>Email: [email]<br>
+        Phone: [phone]<br>Website: [url]<br>Social: [@handle]<br>
+        Type: [type]<br>Event Date: [date]<br>Priority: [High/Med/Low]<br>
+        Notes: [notes]<br>---
+      </div>
+      <hr class="div"/>
+      <div class="card-title" style="font-size:.82rem">🔁 Duplicate Detection</div>
+      <div style="font-size:.74rem;color:var(--text-muted);line-height:1.7">
+        Matched by: email · org name · website · social handle.<br>
+        Duplicates merge notes. Cross-module duplicates are allowed — a youth soccer team can exist in both Soccer and Catering modules.
+      </div>
+    </div>
+  </div>
+  <div id="import-preview-section" style="display:none">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin-bottom:0">👁️ Preview — <span id="imp-count-new">0</span> new · <span id="imp-count-dup">0</span> duplicates</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-ghost btn-sm" onclick="hideImportPreview()">← Back</button>
+          <button class="btn btn-primary btn-sm" onclick="confirmImport()">✅ Confirm Import</button>
+        </div>
+      </div>
+      <div id="import-preview-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REMINDERS -->
+<div class="page" id="page-reminders">
+  <div class="topbar"><h1>🔔 Reminders</h1></div>
+  <div class="grid-2" style="margin-bottom:13px">
+    <div class="card"><div class="card-title" style="color:var(--red)">🚨 Overdue</div><div id="rem-overdue"></div></div>
+    <div class="card"><div class="card-title" style="color:var(--gold)">📅 Due This Week</div><div id="rem-week"></div></div>
+  </div>
+  <div class="card"><div class="card-title">📋 All Upcoming</div><div id="rem-all"></div></div>
+</div>
+
+<!-- MODULE: CATERING -->
+<div class="page" id="page-mod-catering">
+  <div class="mod-banner catering">
+    <div class="mod-banner-icon">🍽️</div>
+    <div>
+      <div class="mod-banner-title" style="color:var(--mod-catering)">Catering Module</div>
+      <div class="mod-banner-desc">Targeting Chester & Delaware County organizations for group meals, event catering & corporate orders</div>
+    </div>
+    <div class="mod-banner-goal" style="color:var(--mod-catering)">Goal: Booked Orders & Repeat Customers</div>
+  </div>
+  <div class="stat-grid" id="cat-stats"></div>
+  <div class="grid-2" style="margin-bottom:13px">
+    <div class="card"><div class="card-title">🔥 Hot Catering Leads</div><div id="cat-hot"></div></div>
+    <div class="card"><div class="card-title">🔴 Follow-Ups Due</div><div id="cat-followups"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:13px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">🍽️ Catering Leads</div>
+      <button class="btn btn-catering btn-sm" onclick="openLeadModal(null,'catering')">+ Add Lead</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="search-cat" placeholder="🔍 Search..."
+        oninput="renderModuleLeads('catering')"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <select id="filter-cat-status" onchange="renderModuleLeads('catering')">
+        <option value="">All Statuses</option>
+        <option>New</option><option>Contacted</option><option>Follow-up Needed</option>
+        <option>Quoted</option><option>Booked</option><option>Repeat Customer</option>
+        <option>Not Interested</option><option>Nurture</option>
+      </select>
+      <select id="filter-cat-type" onchange="renderModuleLeads('catering')">
+        <option value="">All Types</option>
+        <option>Church</option><option>Nonprofit</option><option>School</option>
+        <option>Senior Program</option><option>University</option><option>City Agency</option>
+        <option>Medical</option><option>Civic Group</option><option>Event Venue</option>
+        <option>Hotel/Venue</option><option>Local Business</option><option>Community Partner</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Organization</th><th>Type</th><th>Score</th><th>Status</th><th>Follow-Up</th><th>Actions</th></tr></thead>
+      <tbody id="cat-tbody"></tbody>
+    </table></div>
+    <div id="cat-empty" class="empty" style="display:none"><div class="ico">🍽️</div><p>No catering leads yet.</p></div>
+  </div>
+  <div class="card" style="margin-bottom:13px">
+    <div class="card-title">✉️ Email Drafts — Catering Outreach</div>
+    <p style="font-size:.78rem;color:var(--text-muted);margin-bottom:12px">Ready-to-send emails for each catering lead. All include the EZCater ordering link.</p>
+    <div class="filter-bar">
+      <input type="text" id="search-cat-drafts" placeholder="🔍 Search org..."
+        oninput="renderCateringDrafts()"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    </div>
+    <div id="cat-drafts-list"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 Catering Outreach Sequence</div>
+    <div class="seq-tl">
+      <div class="seq-step"><div class="seq-dot done"></div><div class="seq-day">Day 0</div><div class="seq-label">Initial Outreach Email</div><div class="seq-action">Send catering intro with EZCater link</div></div>
+      <div class="seq-step"><div class="seq-dot cur"></div><div class="seq-day">Day 2</div><div class="seq-label">Friendly Follow-Up</div><div class="seq-action">Quick check-in — any upcoming events?</div></div>
+      <div class="seq-step"><div class="seq-dot"></div><div class="seq-day">Day 5</div><div class="seq-label">Value-Based Follow-Up</div><div class="seq-action">Mention specific upcoming holiday, season, or event tie-in</div></div>
+      <div class="seq-step"><div class="seq-dot"></div><div class="seq-day">Day 10</div><div class="seq-label">Final Check-In</div><div class="seq-action">Last touchpoint — include EZCater link again</div></div>
+      <div class="seq-step"><div class="seq-dot" style="background:rgba(187,136,255,.4);border-color:#bb88ff"></div><div class="seq-day">Day 40+ (no response)</div><div class="seq-label" style="color:#bb88ff">Nurture</div><div class="seq-action">Monthly check-in tied to upcoming events or seasons</div></div>
+      <div class="seq-step"><div class="seq-dot done" style="background:var(--success);border-color:var(--success)"></div><div class="seq-day">After First Order</div><div class="seq-label" style="color:var(--success)">Repeat Customer Track</div><div class="seq-action">Status → Repeat Customer · Follow up 2 weeks after each order</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULE: SOCCER -->
+<div class="page" id="page-mod-soccer">
+  <div class="mod-banner soccer">
+    <div class="mod-banner-icon">⚽</div>
+    <div>
+      <div class="mod-banner-title" style="color:var(--teal-light)">Soccer Fan Module</div>
+      <div class="mod-banner-desc">Capturing Union supporters, visiting fans, youth teams & tournaments to celebrate at Frontline</div>
+    </div>
+    <div class="mod-banner-goal" style="color:var(--teal-light)">Goal: Group Reservations & Watch Party Bookings</div>
+  </div>
+  <div class="stat-grid" id="soc-stats"></div>
+  <div class="grid-2" style="margin-bottom:13px">
+    <div class="card"><div class="card-title">🔥 Hot Soccer Leads</div><div id="soc-hot"></div></div>
+    <div class="card"><div class="card-title">🗓️ Next Union Home Games</div><div id="soc-games"></div></div>
+  </div>
+  <div class="card" style="margin-bottom:13px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="card-title" style="margin-bottom:0">⚽ Soccer Leads</div>
+      <button class="btn btn-soccer btn-sm" onclick="openLeadModal(null,'soccer')">+ Add Lead</button>
+    </div>
+    <div class="filter-bar">
+      <input type="text" id="search-soc" placeholder="🔍 Search..."
+        oninput="renderModuleLeads('soccer')"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <select id="filter-soc-status" onchange="renderModuleLeads('soccer')">
+        <option value="">All Statuses</option>
+        <option>New</option><option>Contacted</option><option>Follow-up Needed</option>
+        <option>Booked</option><option>Not Interested</option><option>Nurture</option>
+      </select>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Organization</th><th>Type</th><th>Score</th><th>Status</th><th>Game Date</th><th>Actions</th></tr></thead>
+      <tbody id="soc-tbody"></tbody>
+    </table></div>
+    <div id="soc-empty" class="empty" style="display:none"><div class="ico">⚽</div><p>No soccer leads yet.</p></div>
+  </div>
+  <div class="card" style="margin-bottom:13px">
+    <div class="card-title">✉️ Soccer Outreach Templates</div>
+    <div class="tab-bar" id="soccer-outreach-tabs"></div>
+    <div id="soccer-outreach-panels"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📅 Soccer Fan Outreach Sequence</div>
+    <div class="seq-tl">
+      <div class="seq-step"><div class="seq-dot done"></div><div class="seq-day">Day 0</div><div class="seq-label">Initial Outreach</div><div class="seq-action">Welcome email or DM — mention nearest upcoming home game</div></div>
+      <div class="seq-step"><div class="seq-dot cur"></div><div class="seq-day">Day 2</div><div class="seq-label">Friendly Follow-Up</div><div class="seq-action">Quick check-in · Mention group reservation option</div></div>
+      <div class="seq-step"><div class="seq-dot"></div><div class="seq-day">Day 5</div><div class="seq-label">Game-Day Offer</div><div class="seq-action">Specific offer tied to an upcoming match date</div></div>
+      <div class="seq-step"><div class="seq-dot"></div><div class="seq-day">Day 10</div><div class="seq-label">Final Check-In</div><div class="seq-action">Last touchpoint before Nurture</div></div>
+      <div class="seq-step"><div class="seq-dot" style="background:rgba(187,136,255,.4);border-color:#bb88ff"></div><div class="seq-day">No Response</div><div class="seq-label" style="color:#bb88ff">Nurture</div><div class="seq-action">Re-engage before each Union home game</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODULE BUILDER -->
+<div class="page" id="page-modules">
+  <div class="topbar"><h1>➕ Module Builder</h1><span class="topbar-badge badge-gold">Build New Channels</span></div>
+  <p style="color:var(--text-muted);font-size:.84rem;margin-bottom:18px">Each module is a self-contained sales channel with its own leads, scoring, outreach, and dashboard. Build one for any new product or audience.</p>
+  <div class="grid-2" style="margin-bottom:16px" id="existing-mods-grid"></div>
+  <div class="mod-builder-card" onclick="openModuleBuilder()">
+    <div style="font-size:2rem;margin-bottom:8px">➕</div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1rem;color:var(--gold);letter-spacing:.06em">CREATE NEW MODULE</div>
+    <div style="font-size:.78rem;color:var(--text-muted);margin-top:4px">Name it, define it, and the CRM builds the dashboard, lead view, and outreach section automatically</div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="page" id="page-calendar">
+  <div class="topbar"><h1>📅 Soccer Calendar</h1><button class="btn btn-gold btn-sm" onclick="openGameModal()">+ Add Event</button></div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">🏟️ 2025 Union Schedule</div><div id="cal-union"></div></div>
+    <div class="card">
+      <div class="card-title">🎉 Your Events & Bookings</div>
+      <div id="cal-custom"></div>
+      <div id="cal-custom-empty" class="empty"><div class="ico">📅</div><p>Add team dinners, private bookings, watch parties</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL GENERATOR -->
+<div class="page" id="page-social">
+  <div class="topbar"><h1>📱 Social Generator</h1></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">⚙️ Settings</div>
+      <div class="form-group" style="margin-bottom:9px"><label>Module</label>
+        <select class="fc" id="social-module" onchange="updatePostTypes()">
+          <option value="soccer">⚽ Soccer</option>
+          <option value="catering">🍽️ Catering</option>
+        </select></div>
+      <div class="form-group" style="margin-bottom:9px"><label>Post Type</label>
+        <select class="fc" id="social-type"></select></div>
+      <div class="form-group" style="margin-bottom:9px"><label>Platform</label>
+        <select class="fc" id="social-platform"><option>Instagram</option><option>Facebook</option><option>X (Twitter)</option></select></div>
+      <div class="form-group" style="margin-bottom:9px"><label>Group / Opponent / Org (optional)</label>
+        <input type="text" class="fc" id="social-org" placeholder="e.g. NYCFC, Shiloh Baptist..."
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group" style="margin-bottom:14px"><label>Event Date (optional)</label>
+        <input type="text" class="fc" id="social-date" placeholder="e.g. Saturday June 7"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <button class="btn btn-primary" onclick="generatePost()" style="width:100%">⚡ Generate Post</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 Generated Post</div>
+      <div class="post-out" id="post-output">Your post will appear here...</div>
+      <div style="margin-top:9px;display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="copyPost()">📋 Copy</button>
+        <button class="btn btn-ghost btn-sm" onclick="generatePost()">🔄 Regenerate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM MODULE PAGES CONTAINER -->
+<div id="custom-module-pages"></div>
+
+</main>
+
+<!-- LEAD MODAL -->
+<div class="modal-overlay" id="lead-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeLeadModal()">✕</button>
+    <div class="modal-title" id="lead-modal-title">Add Lead</div>
+    <input type="hidden" id="lead-id"/>
+    <div class="form-row">
+      <div class="form-group"><label>Organization *</label>
+        <input type="text" class="fc" id="f-org"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group"><label>Contact / Role</label>
+        <input type="text" class="fc" id="f-contact"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Email</label>
+        <input type="email" class="fc" id="f-email"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group"><label>Phone</label>
+        <input type="tel" class="fc" id="f-phone"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Website</label>
+        <input type="url" class="fc" id="f-website"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group"><label>Social</label>
+        <input type="text" class="fc" id="f-social"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row three">
+      <div class="form-group"><label>Lead Type *</label>
+        <select class="fc" id="f-type">
+          <optgroup label="⚽ Soccer">
+            <option>Union Fan Group</option><option>Visiting MLS Team</option>
+            <option>Youth Soccer Team</option><option>Tournament</option>
+            <option>Coach</option><option>Supporter Club</option>
+          </optgroup>
+          <optgroup label="🍽️ Catering">
+            <option>Church</option><option>Nonprofit</option><option>School</option>
+            <option>Senior Program</option><option>University</option><option>City Agency</option>
+            <option>Medical</option><option>Civic Group</option><option>Event Venue</option>
+            <option>Hotel/Venue</option><option>Local Business</option><option>Community Partner</option>
+          </optgroup>
+          <optgroup label="🎤 Other">
+            <option>Performer</option>
+          </optgroup>
+        </select></div>
+      <div class="form-group"><label>Module(s)</label>
+        <select class="fc" id="f-module">
+          <option value="catering">🍽️ Catering</option>
+          <option value="soccer">⚽ Soccer</option>
+          <option value="both">🔀 Both</option>
+        </select></div>
+      <div class="form-group"><label>Status</label>
+        <select class="fc" id="f-status">
+          <option>New</option><option>Contacted</option><option>Follow-up Needed</option>
+          <option>Quoted</option><option>Booked</option><option>Repeat Customer</option>
+          <option>Not Interested</option><option>Nurture</option>
+        </select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Event / Game Date</label>
+        <input type="date" class="fc" id="f-gamedate"/></div>
+      <div class="form-group"><label>Next Follow-Up</label>
+        <input type="date" class="fc" id="f-followup"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Source</label>
+        <input type="text" class="fc" id="f-source"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group"><label>Custom Module Tag (optional)</label>
+        <input type="text" class="fc" id="f-custom-module"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="e.g. Live Entertainment"/></div>
+    </div>
+    <hr class="div"/>
+    <div class="card-title" style="font-size:.84rem">📝 Add Note</div>
+    <div class="form-row">
+      <div class="form-group"><label>Person Spoken To</label>
+        <input type="text" class="fc" id="f-note-person"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group"><label>Date</label>
+        <input type="date" class="fc" id="f-note-date"/></div>
+    </div>
+    <div class="form-row one">
+      <div class="form-group"><label>Notes</label>
+        <textarea class="fc" id="f-note-text"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="What was discussed? Interest shown? Next steps?"></textarea></div>
+    </div>
+    <div id="existing-notes" style="margin-bottom:11px"></div>
+    <div id="score-preview" style="margin-bottom:11px;display:none">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:4px">Lead Score</div>
+      <div id="score-preview-inner"></div>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="closeLeadModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveLead()">💾 Save Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODULE BUILDER MODAL -->
+<div class="modal-overlay" id="module-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('module-modal').classList.remove('open')">✕</button>
+    <div class="modal-title">➕ Create New Module</div>
+    <div class="form-row">
+      <div class="form-group"><label>Module Name *</label>
+        <input type="text" class="fc" id="mod-name" placeholder="e.g. Live Entertainment"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+      <div class="form-group"><label>Icon (emoji)</label>
+        <input type="text" class="fc" id="mod-icon" placeholder="🎵"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row one">
+      <div class="form-group"><label>Description</label>
+        <input type="text" class="fc" id="mod-desc" placeholder="What are you targeting with this module?"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row one">
+      <div class="form-group"><label>Goal (what does success look like?)</label>
+        <input type="text" class="fc" id="mod-goal" placeholder="e.g. Book performers for $150 or less"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row one">
+      <div class="form-group"><label>Lead Sources (where will leads come from?)</label>
+        <input type="text" class="fc" id="mod-sources" placeholder="e.g. Kimi research, Instagram, GigSalad"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    </div>
+    <div class="form-row one">
+      <div class="form-group"><label>Outreach Channel</label>
+        <select class="fc" id="mod-channel">
+          <option>Email + Social DM</option><option>Email Only</option>
+          <option>Phone + Email</option><option>Social DM Only</option><option>In-Person + Email</option>
+        </select></div>
+    </div>
+    <div class="form-row one">
+      <div class="form-group"><label>Color</label>
+        <select class="fc" id="mod-color">
+          <option value="#9b59b6">Purple</option><option value="#e74c3c">Red</option>
+          <option value="#3498db">Blue</option><option value="#2ecc71">Green</option>
+          <option value="#e67e22">Orange</option><option value="#1abc9c">Cyan</option>
+        </select></div>
+    </div>
+    <div style="display:flex;gap:7px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('module-modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-gold btn-sm" onclick="saveModule()">✅ Create Module</button>
+    </div>
+  </div>
+</div>
+
+<!-- OUTREACH MODAL -->
+<div class="modal-overlay" id="outreach-modal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="document.getElementById('outreach-modal').classList.remove('open')">✕</button>
+    <div class="modal-title" id="out-modal-title">📬 Outreach Draft</div>
+    <div id="out-modal-body"></div>
+  </div>
+</div>
+
+<!-- GAME MODAL -->
+<div class="modal-overlay" id="game-modal">
+  <div class="modal" style="max-width:440px">
+    <button class="modal-close" onclick="closeGameModal()">✕</button>
+    <div class="modal-title">Add Calendar Event</div>
+    <div class="form-group" style="margin-bottom:9px"><label>Event Title</label>
+      <input type="text" class="fc" id="g-title"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Date</label><input type="date" class="fc" id="g-date"/></div>
+      <div class="form-group"><label>Time</label><input type="time" class="fc" id="g-time"/></div>
+    </div>
+    <div class="form-group" style="margin-bottom:11px"><label>Notes</label>
+      <textarea class="fc" id="g-notes" rows="3"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea></div>
+    <div style="display:flex;gap:7px;justify-content:flex-end">
+      <button class="btn btn-ghost btn-sm" onclick="closeGameModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveGame()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+'use strict';
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// API CONFIG & AUTH
+// ════════════════════════════════════════════════════════
+// PRODUCTION NOTE:
+// When backend and frontend are on the SAME domain (Render serving both),
+// base: '/api' works perfectly — no change needed.
+//
+// When frontend is on Netlify and backend is on Render separately, set:
+//   VITE_API_URL or replace the empty string below with your Render URL.
+//   e.g. const BACKEND_URL = 'https://frontline-crm-api.onrender.com';
+//
+// Auto-detection: if window.BACKEND_URL is set (injected by Netlify _headers
+// or a config script), use that; otherwise fall back to same-origin /api.
+const BACKEND_URL = (typeof window !== 'undefined' && window.BACKEND_URL) ? window.BACKEND_URL.replace(/\/$/, '') : '';
+
+const API = {
+  base: BACKEND_URL ? BACKEND_URL + '/api' : '/api',
+  token: null,
+
+  getToken() {
+    if (this.token) return this.token;
+    this.token = sessionStorage.getItem('fl_token');
+    return this.token;
+  },
+
+  setToken(t) {
+    this.token = t;
+    if (t) sessionStorage.setItem('fl_token', t);
+    else sessionStorage.removeItem('fl_token');
+  },
+
+  async req(method, path, body) {
+    const opts = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.getToken() ? { Authorization: `Bearer ${this.getToken()}` } : {})
+      }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(this.base + path, opts);
+    if (res.status === 401) {
+      // Token expired — back to login
+      this.setToken(null);
+      showLoginScreen();
+      return null;
+    }
+    return res.json();
+  },
+
+  get(path)         { return this.req('GET', path); },
+  post(path, body)  { return this.req('POST', path, body); },
+  put(path, body)   { return this.req('PUT', path, body); },
+  del(path)         { return this.req('DELETE', path); }
+};
+
+// ════════════════════════════════════════════════════════
+// IN-MEMORY CACHE (replaces localStorage for rendering)
+// ════════════════════════════════════════════════════════
+const DB = {
+  leads: [],
+  games: [],
+  modules: [],
+
+  async loadLeads()   { const r = await API.get('/leads');    if (r?.success) this.leads   = r.data; },
+  async loadGames()   { const r = await API.get('/data/games'); if (r?.success) this.games   = r.data; },
+  async loadModules() { const r = await API.get('/data/modules'); if (r?.success) this.modules = r.data; },
+
+  async loadAll() {
+    await Promise.all([this.loadLeads(), this.loadGames(), this.loadModules()]);
+  }
+};
+
+let currentUser = null;
+
+// ════════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════════
+const EZCATER = 'https://www.ezcater.com/catering/frontline-island-bar-and-grill-3';
+const FRONTLINE_EMAIL = 'frontlineislandbarandgrill1@gmail.com';
+const FRONTLINE_SIG = 'Pam Hill\nFrontline Island Bar & Grill\n2213 W. 3rd Street, Chester PA 19013\n'+FRONTLINE_EMAIL+'\nfrontlinebar.com';
+
+const SOCCER_TYPES = ['Union Fan Group','Visiting MLS Team','Youth Soccer Team','Tournament','Coach','Supporter Club'];
+const CATERING_TYPES = ['Church','Nonprofit','School','Senior Program','University','City Agency','Medical','Civic Group','Event Venue','Hotel/Venue','Local Business','Community Partner'];
+
+const PIPELINE_STAGES = ['New','Contacted','Follow-up Needed','Quoted','Booked','Repeat Customer','Nurture','Not Interested'];
+const STAGE_COLORS = {'New':'#4a9eff','Contacted':'var(--teal)','Follow-up Needed':'var(--gold)','Quoted':'#66aaff','Booked':'var(--success)','Repeat Customer':'#66ffaa','Nurture':'#bb88ff','Not Interested':'#ff6666'};
+
+const BADGE_CLASS = {'New':'b-new','Contacted':'b-contacted','Follow-up Needed':'b-followup','Quoted':'b-quoted','Booked':'b-booked','Repeat Customer':'b-repeat','Not Interested':'b-notinterested','Nurture':'b-nurture'};
+const STATUS_COLOR = {'New':'#4a9eff','Contacted':'var(--teal)','Follow-up Needed':'var(--gold)','Quoted':'#66aaff','Booked':'var(--success)','Repeat Customer':'#66ffaa','Not Interested':'#ff6666','Nurture':'#bb88ff'};
+
+// ════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════
+function fmtDate(d){if(!d)return'';const dt=new Date(d+'T12:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2800);}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('✅ Copied!'));}
+function gmailLink(to,subject,body){return '#';}
+
+// Email store — keyed by lead id
+window._EM=window._EM||{};
+async function openEmail(keyOrTo,subject,body){
+  let to=keyOrTo,subj=subject,bod=body,leadId=null,mod='';
+  if(window._EM[keyOrTo]){
+    const d=window._EM[keyOrTo];
+    to=d.to;subj=d.subject;bod=d.body;leadId=d.leadId;mod=d.module||'';
+  }
+  to=to||'';subj=subj||'';bod=bod||'';
+  if(!to){toast('⚠️ No email address — add one to this lead first.');return;}
+  
+  // Show send modal
+  document.getElementById('send-email-to').value=to;
+  document.getElementById('send-email-subject').value=subj;
+  document.getElementById('send-email-body').value=bod;
+  document.getElementById('send-email-lead-id').value=leadId||'';
+  document.getElementById('send-email-module').value=mod;
+  document.getElementById('send-email-modal').classList.add('open');
+}
+
+async function doSendEmail(){
+  const to=document.getElementById('send-email-to').value.trim();
+  const subject=document.getElementById('send-email-subject').value.trim();
+  const body=document.getElementById('send-email-body').value.trim();
+  const leadId=document.getElementById('send-email-lead-id').value;
+  const mod=document.getElementById('send-email-module').value;
+  if(!to||!subject||!body){toast('Please fill all fields');return;}
+  
+  const btn=document.getElementById('send-email-btn');
+  btn.textContent='Sending...';btn.disabled=true;
+  
+  const r=await API.post('/email/send',{to,subject,body,leadId:leadId||null,module:mod});
+  btn.textContent='✉️ Send Email';btn.disabled=false;
+  
+  if(r?.success){
+    document.getElementById('send-email-modal').classList.remove('open');
+    toast('✅ Email sent to '+to+'!');
+  } else {
+    toast('❌ Send failed: '+(r?.message||'SMTP error'));
+  }
+}
+
+function ns(s){return(s||'').toLowerCase().replace(/\s+/g,' ').trim();}
+function nu(s){return(s||'').replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/$/,'').toLowerCase().trim();}
+function nsoc(s){return(s||'').replace(/^@/,'').toLowerCase().trim();}
+function ad(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0];}
+
+// ════════════════════════════════════════════════════════
+// LEAD MODULE LOGIC
+// ════════════════════════════════════════════════════════
+function leadsInModule(mod){
+  if(!mod) return DB.leads;
+  if(mod==='both') return DB.leads.filter(l=>l.module==='both');
+  return DB.leads.filter(l=>l.module===mod||l.module==='both');
+}
+
+function getModuleTag(lead){
+  if(lead.module==='both') return `<span class="mod-tag both">🔀 Both</span>`;
+  if(lead.module==='soccer') return `<span class="mod-tag soccer">⚽ Soccer</span>`;
+  if(lead.module==='catering') return `<span class="mod-tag catering">🍽️ Catering</span>`;
+  const mods=DB.modules;const cm=mods.find(m=>m.id===lead.module||m.name===lead.module);
+  if(cm) return `<span class="mod-tag custom" style="border-color:${cm.color}40;color:${cm.color}">${cm.icon} ${cm.name}</span>`;
+  return `<span class="mod-tag custom">${lead.module||''}</span>`;
+}
+
+// ════════════════════════════════════════════════════════
+// SCORING — module-aware
+// ════════════════════════════════════════════════════════
+function scoreLead(lead){
+  let score=0;const bd=[];
+  if(lead.email&&lead.email.includes('@')){score+=30;bd.push('+30 has email');}
+  const loc=((lead.org||'')+(lead.website||'')+(lead.source||'')).toLowerCase();
+  if(['chester','philadelphia','delco','delaware county'].some(k=>loc.includes(k))){score+=20;bd.push('+20 Chester/Philly area');}
+
+  if(lead.module==='soccer'||lead.module==='both'){
+    const typeOrg=((lead.type||'')+(lead.org||'')).toLowerCase();
+    if(['union','subaru park','mls','supporter','fan group'].some(k=>typeOrg.includes(k))){score+=20;bd.push('+20 Union/MLS connection');}
+    if(['youth','tournament','school','coach'].some(k=>typeOrg.includes(k))){score+=15;bd.push('+15 soccer community');}
+  }
+  if(lead.module==='catering'||lead.module==='both'){
+    const typeOrg=((lead.type||'')+(lead.org||'')).toLowerCase();
+    if(['church','nonprofit','school','senior','medical','city','civic','university'].some(k=>typeOrg.includes(k))){score+=20;bd.push('+20 strong catering prospect');}
+    if(lead.status==='Quoted'||lead.status==='Repeat Customer'){score+=10;bd.push('+10 engaged/returning');}
+  }
+  if(lead.gamedate){const ev=new Date(lead.gamedate+'T12:00:00');if(ev>new Date()){score+=10;bd.push('+10 upcoming event');}}
+  if(lead.social&&lead.social.trim()&&lead.social!=='@'){score+=5;bd.push('+5 has social');}
+  score=Math.min(100,score);
+  const priority=score>=80?'Hot':score>=50?'Warm':'Cold';
+  return{score,priority,breakdown:bd};
+}
+function scoreColor(s){return s>=80?'var(--hot)':s>=50?'var(--warning)':'var(--cold)';}
+function priorityBadge(p){
+  const m={Hot:'b-hot',Warm:'b-warm',Cold:'b-cold'};
+  const i={Hot:'🔥',Warm:'☀️',Cold:'❄️'};
+  return`<span class="badge ${m[p]||'b-cold'}">${i[p]||''} ${p}</span>`;
+}
+function scoreBar(lead){
+  const s=scoreLead(lead);
+  return`<div class="score-wrap">
+    <div class="score-bar"><div class="score-fill" style="width:${s.score}%;background:${scoreColor(s.score)}"></div></div>
+    <div class="score-num" style="color:${scoreColor(s.score)};font-size:.78rem">${s.score}</div>
+  </div>${priorityBadge(s.priority)}`;
+}
+
+// ════════════════════════════════════════════════════════
+// DUPLICATE DETECTION
+// ════════════════════════════════════════════════════════
+function findDuplicate(c, skipModule){
+  for(const l of DB.leads){
+    // cross-module duplicates ARE allowed — only flag same-module same-org
+    if(!skipModule && l.module!==c.module && l.module!=='both' && c.module!=='both') continue;
+    if(c.email&&l.email&&ns(c.email)===ns(l.email)) return{lead:l,reason:'Same email'};
+    if(c.org&&l.org&&ns(c.org)===ns(l.org)&&(l.module===c.module||l.module==='both'||c.module==='both')) return{lead:l,reason:'Same org in same module'};
+    if(c.website&&l.website&&nu(c.website)===nu(l.website)&&nu(c.website).length>3) return{lead:l,reason:'Same website'};
+    if(c.social&&l.social&&nsoc(c.social)===nsoc(l.social)&&nsoc(c.social).length>2) return{lead:l,reason:'Same social handle'};
+  }
+  return null;
+}
+
+// ════════════════════════════════════════════════════════
+// FOLLOW-UP SEQUENCE
+// ════════════════════════════════════════════════════════
+const SEQ_DAYS=[0,2,5,10];
+const SEQ_LABELS=['Initial Outreach','Friendly Follow-Up','Value-Based Follow-Up','Final Check-In'];
+
+function advanceSequence(lead){
+  if(!lead.importDate) lead.importDate=new Date().toISOString().split('T')[0];
+  if(lead.seqStep===undefined) lead.seqStep=0;
+  const step=lead.seqStep;
+  if(step<SEQ_DAYS.length){
+    const base=new Date(lead.importDate+'T12:00:00');
+    base.setDate(base.getDate()+SEQ_DAYS[step]);
+    lead.followup=base.toISOString().split('T')[0];
+    lead.seqLabel=SEQ_LABELS[step];
+  } else {
+    const base=new Date(lead.importDate+'T12:00:00');
+    base.setDate(base.getDate()+40);
+    lead.followup=base.toISOString().split('T')[0];
+    lead.status='Nurture';
+    lead.seqLabel='Nurture — monthly check-in';
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════════════════
+let activePage='home';
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active','mod-active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg) pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'")) n.classList.add('active');
+  });
+  activePage=id;
+  renderPage(id);
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function showModule(mod){
+  const pageId='mod-'+mod;
+  showPage(pageId);
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+mod+"'")) n.classList.add('mod-active');
+  });
+}
+
+function renderPage(id){
+  if(id==='home') renderHome();
+  else if(id==='all-leads') renderAllLeads();
+  else if(id==='pipeline') renderPipeline();
+  else if(id==='reminders') renderReminders();
+  else if(id==='calendar') renderCalendar();
+  else if(id==='modules') renderModulesPage();
+  else if(id==='mod-catering'){renderModuleDash('catering');renderModuleLeads('catering');renderCateringDrafts();}
+  else if(id==='mod-soccer'){renderModuleDash('soccer');renderModuleLeads('soccer');renderSoccerOutreachTabs();}
+  else if(id.startsWith('mod-custom-')) renderCustomModulePage(id.replace('mod-custom-',''));
+}
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ════════════════════════════════════════════════════════
+// HOME DASHBOARD
+// ════════════════════════════════════════════════════════
+function renderHome(){
+  const leads=DB.leads;
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('home-stats').innerHTML=`
+    <div class="stat-card teal"><div class="stat-num">${leads.length}</div><div class="stat-label">Total Leads</div><div class="stat-icon">🎯</div></div>
+    <div class="stat-card orange"><div class="stat-num">${leadsInModule('catering').length}</div><div class="stat-label">Catering Leads</div><div class="stat-icon">🍽️</div></div>
+    <div class="stat-card teal"><div class="stat-num">${leadsInModule('soccer').length}</div><div class="stat-label">Soccer Leads</div><div class="stat-icon">⚽</div></div>
+    <div class="stat-card gold"><div class="stat-num">${leads.filter(l=>leads&&scoreLead(l).priority==='Hot').length}</div><div class="stat-label">Hot Leads</div><div class="stat-icon">🔥</div></div>
+    <div class="stat-card green"><div class="stat-num">${leads.filter(l=>l.status==='Booked'||l.status==='Repeat Customer').length}</div><div class="stat-label">Booked / Repeat</div><div class="stat-icon">🏆</div></div>
+    <div class="stat-card red"><div class="stat-num">${leads.filter(l=>l.followup&&l.followup<=today&&l.status!=='Booked'&&l.status!=='Not Interested').length}</div><div class="stat-label">Overdue</div><div class="stat-icon">🚨</div></div>
+  `;
+
+  const miniMod=(mod,icon,color,label)=>{
+    const ml=leadsInModule(mod);
+    const hot=ml.filter(l=>scoreLead(l).priority==='Hot').length;
+    const booked=ml.filter(l=>l.status==='Booked'||l.status==='Repeat Customer').length;
+    const overdue=ml.filter(l=>l.followup&&l.followup<=today&&l.status!=='Booked'&&l.status!=='Not Interested').length;
+    return`<div class="card-title" style="color:${color}">${icon} ${label}</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="background:var(--input-bg);border-radius:7px;padding:8px 11px;flex:1;text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${color}">${ml.length}</div>
+          <div style="font-size:.66rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">TOTAL</div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:7px;padding:8px 11px;flex:1;text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--hot)">${hot}</div>
+          <div style="font-size:.66rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">HOT</div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:7px;padding:8px 11px;flex:1;text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--success)">${booked}</div>
+          <div style="font-size:.66rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">BOOKED</div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:7px;padding:8px 11px;flex:1;text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--red)">${overdue}</div>
+          <div style="font-size:.66rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">OVERDUE</div>
+        </div>
+      </div>
+      ${ml.sort((a,b)=>scoreLead(b).score-scoreLead(a).score).slice(0,3).map(l=>`
+        <div class="rem-item">
+          <div class="rem-dot" style="background:${STATUS_COLOR[l.status]||'#888'}"></div>
+          <div class="rem-info"><div class="rem-org">${l.org}</div><div class="rem-sub">${l.type}</div></div>
+          <span class="badge ${BADGE_CLASS[l.status]||'b-new'}">${l.status}</span>
+        </div>`).join('')||'<div style="color:var(--text-muted);font-size:.8rem;padding:8px 0">No leads yet</div>'}
+      <button class="btn btn-ghost btn-sm" style="margin-top:9px;width:100%" onclick="showModule('${mod}')">Open ${label} Module →</button>`;
+  };
+
+  document.getElementById('home-mod-catering').innerHTML=miniMod('catering','🍽️','var(--mod-catering)','Catering');
+  document.getElementById('home-mod-soccer').innerHTML=miniMod('soccer','⚽','var(--teal-light)','Soccer');
+
+  // custom modules
+  const custMods=DB.modules;
+  if(custMods.length){
+    document.getElementById('home-custom-mods').innerHTML=`<div class="grid-2">${custMods.map(m=>{
+      const ml=DB.leads.filter(l=>l.module===m.id||l.customModule===m.name);
+      return`<div class="card">
+        <div class="card-title" style="color:${m.color}">${m.icon} ${m.name}</div>
+        <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:10px">${m.goal}</div>
+        <div style="display:flex;gap:8px">
+          <div style="background:var(--input-bg);border-radius:7px;padding:8px 11px;flex:1;text-align:center">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:${m.color}">${ml.length}</div>
+            <div style="font-size:.64rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">LEADS</div>
+          </div>
+          <div style="background:var(--input-bg);border-radius:7px;padding:8px 11px;flex:1;text-align:center">
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--success)">${ml.filter(l=>l.status==='Booked').length}</div>
+            <div style="font-size:.64rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">BOOKED</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:9px;width:100%" onclick="showPage('mod-custom-${m._id||m.id}')">Open Module →</button>
+      </div>`;
+    }).join('')}</div>`;
+  } else {
+    document.getElementById('home-custom-mods').innerHTML='';
+  }
+
+  const hot=leads.filter(l=>scoreLead(l).priority==='Hot').sort((a,b)=>scoreLead(b).score-scoreLead(a).score).slice(0,5);
+  document.getElementById('home-hot').innerHTML=hot.length?hot.map(l=>{
+    const s=scoreLead(l);
+    return`<div class="rem-item">
+      <div class="rem-dot" style="background:var(--hot)"></div>
+      <div class="rem-info"><div class="rem-org">${l.org}</div><div class="rem-sub">${l.type} · ${getModuleTag(l)}</div></div>
+      <div style="text-align:right">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:${scoreColor(s.score)}">${s.score}</div>
+        <button class="btn btn-ghost btn-xs" onclick="openOutreachForLead('${l._id||l.id}')">📬</button>
+      </div>
+    </div>`;
+  }).join(''):'<div style="color:var(--text-muted);font-size:.8rem;padding:8px 0">No hot leads yet</div>';
+
+  const overdue=leads.filter(l=>l.followup&&l.followup<=today&&l.status!=='Booked'&&l.status!=='Not Interested').sort((a,b)=>a.followup.localeCompare(b.followup)).slice(0,5);
+  document.getElementById('home-overdue').innerHTML=overdue.length?overdue.map(l=>`
+    <div class="rem-item">
+      <div class="rem-dot" style="background:var(--red)"></div>
+      <div class="rem-info"><div class="rem-org">${l.org}</div><div class="rem-sub">${fmtDate(l.followup)} · ${getModuleTag(l)}</div></div>
+      <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">View</button>
+    </div>`).join(''):'<div style="color:var(--text-muted);font-size:.8rem;padding:8px 0">No overdue follow-ups 🎉</div>';
+}
+
+// ════════════════════════════════════════════════════════
+// ALL LEADS TABLE
+// ════════════════════════════════════════════════════════
+let allLeadsModFilter='';
+
+function setLeadFilter(type,val,el){
+  allLeadsModFilter=val;
+  document.querySelectorAll('#all-leads-pills .pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderAllLeads();
+}
+
+function renderAllLeads(){
+  const q=(document.getElementById('search-all')?.value||'').toLowerCase();
+  const st=document.getElementById('filter-all-status')?.value||'';
+  const prio=document.getElementById('filter-all-priority')?.value||'';
+  let leads=DB.leads.filter(l=>{
+    if(q&&!(l.org||'').toLowerCase().includes(q)&&!(l.contact||'').toLowerCase().includes(q)) return false;
+    if(st&&l.status!==st) return false;
+    if(prio&&scoreLead(l).priority!==prio) return false;
+    if(allLeadsModFilter){
+      if(allLeadsModFilter==='both') return l.module==='both';
+      if(allLeadsModFilter==='catering') return l.module==='catering'||l.module==='both';
+      if(allLeadsModFilter==='soccer') return l.module==='soccer'||l.module==='both';
+    }
+    return true;
+  }).sort((a,b)=>scoreLead(b).score-scoreLead(a).score);
+
+  const tbody=document.getElementById('all-leads-tbody');
+  const empty=document.getElementById('all-leads-empty');
+  if(!leads.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=leads.map(l=>`
+    <tr>
+      <td><div class="td-org">${l.org}</div><div class="td-sub">${l.contact||''}</div></td>
+      <td>${getModuleTag(l)}</td>
+      <td><span class="type-tag">${l.type}</span></td>
+      <td>${scoreBar(l)}</td>
+      <td><span class="badge ${BADGE_CLASS[l.status]||'b-new'}">${l.status}</span></td>
+      <td style="font-size:.76rem;color:${l.followup?'var(--gold)':'var(--text-muted)'}">${l.followup?fmtDate(l.followup):'—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">✏️</button>
+        <button class="btn btn-ghost btn-xs" onclick="openOutreachForLead('${l._id||l.id}')">📬</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteLead('${l._id||l.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// MODULE DASH
+// ════════════════════════════════════════════════════════
+function renderModuleDash(mod){
+  const leads=leadsInModule(mod);
+  const today=new Date().toISOString().split('T')[0];
+  const color=mod==='catering'?'var(--mod-catering)':'var(--teal-light)';
+  const icon=mod==='catering'?'🍽️':'⚽';
+  const statsEl=document.getElementById(mod==='catering'?'cat-stats':'soc-stats');
+  if(statsEl) statsEl.innerHTML=`
+    <div class="stat-card orange"><div class="stat-num">${leads.length}</div><div class="stat-label">Total</div></div>
+    <div class="stat-card gold"><div class="stat-num">${leads.filter(l=>l.status==='New').length}</div><div class="stat-label">New</div></div>
+    <div class="stat-card purple"><div class="stat-num">${leads.filter(l=>l.status==='Quoted').length}</div><div class="stat-label">Quoted</div></div>
+    <div class="stat-card green"><div class="stat-num">${leads.filter(l=>l.status==='Booked'||l.status==='Repeat Customer').length}</div><div class="stat-label">Booked</div></div>
+    <div class="stat-card red"><div class="stat-num">${leads.filter(l=>l.followup&&l.followup<=today&&l.status!=='Booked'&&l.status!=='Not Interested').length}</div><div class="stat-label">Overdue</div></div>
+  `;
+
+  const hotEl=document.getElementById(mod==='catering'?'cat-hot':'soc-hot');
+  if(hotEl){
+    const hot=leads.filter(l=>scoreLead(l).priority==='Hot').sort((a,b)=>scoreLead(b).score-scoreLead(a).score).slice(0,5);
+    hotEl.innerHTML=hot.length?hot.map(l=>{
+      const s=scoreLead(l);
+      return`<div class="rem-item">
+        <div class="rem-dot" style="background:var(--hot)"></div>
+        <div class="rem-info"><div class="rem-org">${l.org}</div><div class="rem-sub">${l.type}</div></div>
+        <div style="text-align:right">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:.95rem;color:${scoreColor(s.score)}">${s.score}</div>
+          <button class="btn btn-ghost btn-xs" style="margin-top:2px" onclick="openOutreachForLead('${l._id||l.id}')">📬</button>
+        </div>
+      </div>`;
+    }).join(''):'<div style="color:var(--text-muted);font-size:.8rem;padding:8px 0">No hot leads yet</div>';
+  }
+
+  if(mod==='catering'){
+    const fuEl=document.getElementById('cat-followups');
+    if(fuEl){
+      const overdue=leads.filter(l=>l.followup&&l.followup<=today&&l.status!=='Booked'&&l.status!=='Not Interested').sort((a,b)=>a.followup.localeCompare(b.followup)).slice(0,5);
+      fuEl.innerHTML=overdue.length?overdue.map(l=>`
+        <div class="rem-item">
+          <div class="rem-dot" style="background:var(--red)"></div>
+          <div class="rem-info"><div class="rem-org">${l.org}</div><div class="rem-sub">${fmtDate(l.followup)}</div></div>
+          <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">View</button>
+        </div>`).join(''):'<div style="color:var(--text-muted);font-size:.8rem;padding:8px 0">No overdue follow-ups 🎉</div>';
+    }
+  }
+
+  if(mod==='soccer'){
+    const gEl=document.getElementById('soc-games');
+    if(gEl) gEl.innerHTML=UNION_SCHEDULE.slice(0,4).map(g=>gameCard(g)).join('');
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// MODULE LEADS TABLE
+// ════════════════════════════════════════════════════════
+function renderModuleLeads(mod){
+  const q=(document.getElementById('search-'+mod.slice(0,3))?.value||'').toLowerCase();
+  const st=document.getElementById('filter-'+mod.slice(0,3)+'-status')?.value||'';
+  const ty=document.getElementById('filter-'+mod.slice(0,3)+'-type')?.value||'';
+  let leads=leadsInModule(mod).filter(l=>{
+    if(q&&!(l.org||'').toLowerCase().includes(q)&&!(l.contact||'').toLowerCase().includes(q)) return false;
+    if(st&&l.status!==st) return false;
+    if(ty&&l.type!==ty) return false;
+    return true;
+  }).sort((a,b)=>scoreLead(b).score-scoreLead(a).score);
+
+  const prefix=mod==='catering'?'cat':'soc';
+  const tbody=document.getElementById(prefix+'-tbody');
+  const empty=document.getElementById(prefix+'-empty');
+  if(!leads.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=leads.map(l=>`
+    <tr>
+      <td><div class="td-org">${l.org}</div><div class="td-sub">${l.contact||''}</div></td>
+      <td><span class="type-tag">${l.type}</span></td>
+      <td>${scoreBar(l)}</td>
+      <td><span class="badge ${BADGE_CLASS[l.status]||'b-new'}">${l.status}</span></td>
+      <td style="font-size:.76rem;color:${(l.gamedate||l.followup)?'var(--gold)':'var(--text-muted)'}">${fmtDate(l.gamedate||l.followup)||'—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">✏️</button>
+        <button class="btn btn-ghost btn-xs" onclick="openOutreachForLead('${l._id||l.id}')">📬</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteLead('${l._id||l.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// PIPELINE
+// ════════════════════════════════════════════════════════
+let pipelineMod='';
+function setPipelineModule(mod,el){
+  pipelineMod=mod;
+  document.querySelectorAll('#page-pipeline .pill').forEach(p=>p.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderPipeline();
+}
+
+function renderPipeline(){
+  const leads=pipelineMod?leadsInModule(pipelineMod):DB.leads;
+  document.getElementById('pipeline-wrap').innerHTML=PIPELINE_STAGES.map(stage=>{
+    const sl=leads.filter(l=>l.status===stage).sort((a,b)=>scoreLead(b).score-scoreLead(a).score);
+    return`<div class="pipeline-col">
+      <div class="pipeline-col-head" style="color:${STAGE_COLORS[stage]||'var(--text-muted)'}">
+        ${stage}<span class="pipeline-count">${sl.length}</span>
+      </div>
+      ${sl.map(l=>{
+        const s=scoreLead(l);
+        return`<div class="pipeline-card">
+          <div class="pipeline-card-org">${l.org}</div>
+          <div class="pipeline-card-sub">${l.contact||''} · ${l.type}</div>
+          <div class="pipeline-card-foot">
+            ${priorityBadge(s.priority)}
+            <div class="score-wrap" style="flex:1">
+              <div class="score-bar"><div class="score-fill" style="width:${s.score}%;background:${scoreColor(s.score)}"></div></div>
+              <div class="score-num" style="color:${scoreColor(s.score)};font-size:.76rem">${s.score}</div>
+            </div>
+            ${getModuleTag(l)}
+            <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">✏️</button>
+          </div>
+          ${l.followup?`<div style="font-size:.7rem;color:var(--gold);margin-top:5px">📅 ${fmtDate(l.followup)}</div>`:''}
+        </div>`;
+      }).join('')||`<div style="color:var(--text-muted);font-size:.76rem;text-align:center;padding:10px 0">Empty</div>`}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// CATERING EMAIL DRAFTS
+// ════════════════════════════════════════════════════════
+function getCateringDraft(l){
+  const contact=l.contact||'there';
+  const type=l.type||'';
+  let opening='';
+  if(['Church'].includes(type)) opening='We provide fresh Caribbean catering for repast meals, church dinners, fellowship events, and banquets.';
+  else if(['Nonprofit','Civic Group'].includes(type)) opening='We love supporting local nonprofits and community organizations with fresh Caribbean catering for galas, fundraisers, volunteer dinners, and staff meals.';
+  else if(['Senior Program'].includes(type)) opening='We specialize in warm, hearty Caribbean meals perfect for senior luncheons, fellowship gatherings, and appreciation events.';
+  else if(['University','School'].includes(type)) opening='Whether it\'s a staff appreciation lunch, end-of-year celebration, or department event, we have catering options that work for groups of all sizes.';
+  else if(['Medical'].includes(type)) opening='Your team works hard. We\'d love to make their next staff meal or appreciation event something special with fresh Caribbean cuisine.';
+  else if(['City Agency','Civic Group'].includes(type)) opening='We\'re proud to be right here in Chester, and we love supporting local institutions and community organizations.';
+  else opening='We\'d love to bring authentic Caribbean flavors to your next event, function, or team meal.';
+
+  const subject='Quick, LOCAL catering option for your next function — Frontline Island Bar & Grill';
+  const body=`Hi ${contact},
+
+I'm reaching out from Frontline Island Bar & Grill, right here in Chester PA.
+
+${opening}
+
+A lot of local organizations choose us when they want something different — jerk chicken, oxtail, rice & peas, plantains, and more. Everything is made fresh and we can accommodate groups of all sizes.
+
+Ordering is easy through EZCater:
+${EZCATER}
+
+Or reach us directly:
+📧 ${FRONTLINE_EMAIL}
+🌐 frontlinebar.com
+📍 2213 W. 3rd Street, Chester PA 19013
+
+If you have anything coming up, I'd be happy to help.
+
+Best,
+${FRONTLINE_SIG}`;
+  return{subject,body};
+}
+
+function renderCateringDrafts(){
+  const q=(document.getElementById('search-cat-drafts')?.value||'').toLowerCase();
+  const leads=leadsInModule('catering').filter(l=>{
+    if(l.status==='Booked'||l.status==='Not Interested') return false;
+    if(q&&!(l.org||'').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a,b)=>scoreLead(b).score-scoreLead(a).score);
+
+  const el=document.getElementById('cat-drafts-list');
+  if(!leads.length){el.innerHTML='<div class="empty"><div class="ico">✉️</div><p>No drafts match your search.</p></div>';return;}
+  const s=scoreLead(leads[0]);
+  el.innerHTML=leads.map(l=>{
+    const draft=getCateringDraft(l);
+    const glink=gmailLink(l.email,draft.subject,draft.body);
+    const sc=scoreLead(l);
+    return`<div class="draft-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px">
+        <div>
+          <div class="draft-org">${l.org}</div>
+          <div class="draft-role">${l.contact||''}</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-top:4px">
+            <span class="type-tag">${l.type}</span>
+            ${priorityBadge(sc.priority)}
+            <span class="badge ${BADGE_CLASS[l.status]||'b-new'}">${l.status}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="copyText(${JSON.stringify('Subject: '+draft.subject+'\n\n'+draft.body)})">📋 Copy</button>
+          <button class="btn btn-primary btn-sm" data-eid="${(()=>{const k='e'+l.id;window._EM=window._EM||{};window._EM[k]={to:l.email,subject:draft.subject,body:draft.body};return k;})()}" onclick="openEmail(this.dataset.eid)">✉️ Email</button>
+        </div>
+      </div>
+      <div class="draft-label">Subject</div>
+      <div style="font-size:.83rem;margin-bottom:9px;color:var(--white)">${draft.subject}</div>
+      <div class="draft-label">Body</div>
+      <div class="draft-body-text">${draft.body}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// SOCCER OUTREACH TEMPLATES
+// ════════════════════════════════════════════════════════
+const SOCCER_TEMPLATES={
+  'Union Fan Group':{icon:'🔵',
+    subject:'Host Your Union Pre-Game at Frontline Island Bar & Grill!',
+    email:`Hey [Group Name] Family!\n\nFrontline Island Bar & Grill wants to be your official pre-game & post-game home for the 2025 season!\n\nWe're a Caribbean-inspired sports bar & grill minutes from Subaru Park in Chester, PA.\n\n⚽ Reserved section every home game\n📺 Full match on big screens\n🍹 Exclusive drink specials for supporters\n🥘 Caribbean & American menu\n\nLet's set up a quick call or visit!\n\nDOOP! 💙\n\n${FRONTLINE_SIG}\nfrontlinebar.com`,
+    dm:`Hey [Group]! 🔵⚽ Frontline Island Bar & Grill in Chester is the perfect home base for Union pre-games! Reserved sections, big screens & drink specials. Email ${FRONTLINE_EMAIL}! DOOP! 🌴`,
+    followup1:`Hi [Contact],\n\nJust following up on hosting [Group Name] at Frontline for Union home games. Still excited about the idea!\n\nQuick 10-minute call?\n\n${FRONTLINE_SIG}`,
+    followup2:`Hey [Contact],\n\nWith the next Union home game coming up — last chance to lock in your section!\n\n✅ Reserved area · ✅ Custom welcome sign · ✅ Drink packages\n\n${FRONTLINE_SIG}`,
+    final:`Hi [Contact],\n\nIf now isn't the right time, totally understand. We're always here when you're ready.\n\n${FRONTLINE_SIG}\n\nDOOP! 💙`
+  },
+  'Visiting MLS Team':{icon:'✈️',
+    subject:'Welcome to Chester, PA — Frontline Island Bar & Grill Invites [Team] Supporters',
+    email:`Hi [Contact],\n\n[Visiting Team] is heading to Chester to take on Philadelphia Union at Subaru Park on [Date]!\n\nFrontline Island Bar & Grill is your home base — minutes from Subaru Park.\n\n🍹 Full Caribbean menu + full bar\n🎉 Private reservations for 10–100+\n🏆 Game-day specials for visiting fans\n\nCome hungry. Leave happy. ⚽🌴\n\n${FRONTLINE_SIG}`,
+    dm:`👋 Welcome to Chester! Frontline Island Bar & Grill is your home base near Subaru Park. Caribbean food, full bar, reserved sections. Email ${FRONTLINE_EMAIL}! ✈️⚽`,
+    followup1:`Hi [Contact],\n\nFollowing up on hosting [Team] supporters at Frontline for the Union match. Minutes from Subaru Park!\n\n${FRONTLINE_SIG}`,
+    followup2:`Hey [Contact],\n\nGame day is almost here — last chance to reserve your section!\n\n${FRONTLINE_SIG}`,
+    final:`Hi [Contact],\n\nWalk-ins always welcome! Hope to see you in Chester.\n\n${FRONTLINE_SIG}`
+  },
+  'Youth Soccer Team':{icon:'⚽',
+    subject:'Celebrate Your Season at Frontline Island Bar & Grill!',
+    email:`Hi Coach [Last Name],\n\nCongratulations on a great season with [Team Name]!\n\nOur Youth Team Dinner Package:\n🍽️ Family-style Caribbean & American menu\n🏆 Personalized certificate for the team\n🎉 Dedicated section\n📸 Group photo opportunity\n🥤 Kid-friendly drinks + full adult menu\n\n2213 W. 3rd Street, Chester — fully kid-friendly!\n\nReply to check availability!\n\nGo [Team Name]! ⚽🌴\n\n${FRONTLINE_SIG}`,
+    dm:`⚽ Coach! End-of-season team dinner? Frontline Island Bar & Grill in Chester is perfect — family-style Caribbean food, reserved seating, team photo! ${FRONTLINE_EMAIL} 🌴🏆`,
+    followup1:`Hi Coach,\n\nJust checking in on the team dinner idea! Do you have dates in mind?\n\n${FRONTLINE_SIG}`,
+    followup2:`Hey Coach,\n\nSeason wrap-up is almost here — let's celebrate!\n\n✅ Family-style feast · ✅ Custom welcome sign · ✅ Team photo\n\n${FRONTLINE_SIG}`,
+    final:`Hi Coach,\n\nFrontline is always here for your team's celebrations.\n\n${FRONTLINE_SIG}`
+  },
+  'Tournament':{icon:'🏆',
+    subject:'Make Frontline the Official Venue of [Tournament Name]!',
+    email:`Hi [Contact],\n\nFrontline Island Bar & Grill wants to be your official celebration venue for [Tournament Name]!\n\n🎯 Official Tournament Venue partnership\n🍹 Post-round celebration packages\n🏟️ Group reservations for 10–100+\n📣 Cross-promotion to participants\n\n${FRONTLINE_SIG}`,
+    dm:`🏆 Running a soccer tournament? Frontline Island Bar & Grill is the official celebration spot! Group packages, Caribbean food, full bar. ${FRONTLINE_EMAIL} ⚽🌴`,
+    followup1:`Hi [Contact],\n\nFollowing up on a tournament venue partnership!\n\n${FRONTLINE_SIG}`,
+    followup2:`Hi [Contact],\n\nTournament weekend is close — still time to set up Frontline as the go-to spot!\n\n${FRONTLINE_SIG}`,
+    final:`Hi [Contact],\n\nKeeping the door open for future tournaments.\n\n${FRONTLINE_SIG}`
+  },
+  'Supporter Club':{icon:'🎽',
+    subject:'Frontline Island Bar & Grill — Official Matchday Home for [Club Name]!',
+    email:`Hey [Club Name]!\n\nFrontline Island Bar & Grill wants to be your official matchday home every matchday this season!\n\n🔵 Reserved section for your club\n🍹 Exclusive drink specials for members\n📺 All matches live\n🎉 Pre-game & post-game area\n\nLet's make it official!\n\nDOOP! 💙\n\n${FRONTLINE_SIG}`,
+    dm:`🎽⚽ Hey [Club Name]! Frontline Island Bar & Grill in Chester wants to be your official matchday home! Reserved sections, drink specials, big screens. ${FRONTLINE_EMAIL} 🌴`,
+    followup1:`Hi [Contact],\n\nFollowing up about making Frontline the matchday home for [Club Name]!\n\n${FRONTLINE_SIG}`,
+    followup2:`Hey [Club Name]!\n\nNext Union home game is [Date] — lock in your section!\n\n${FRONTLINE_SIG}`,
+    final:`Hey [Club Name]! Always welcome at Frontline.\n\nDOOP! 💙\n${FRONTLINE_SIG}`
+  },
+};
+
+function renderSoccerOutreachTabs(){
+  const types=Object.keys(SOCCER_TEMPLATES);
+  document.getElementById('soccer-outreach-tabs').innerHTML=types.map((t,i)=>
+    `<button class="tab-btn ${i===0?'active':''}" onclick="switchSoccerTab('${t}',this)">${SOCCER_TEMPLATES[t].icon} ${t}</button>`
+  ).join('');
+  document.getElementById('soccer-outreach-panels').innerHTML=types.map((t,i)=>`
+    <div class="tab-panel ${i===0?'active':''}" id="stp-${t.replace(/[\s/]+/g,'-')}">${renderSoccerPanel(t)}</div>`).join('');
+}
+
+function renderSoccerPanel(type){
+  const tmpl=SOCCER_TEMPLATES[type];if(!tmpl)return'';
+  const glink=gmailLink('',tmpl.subject,tmpl.email);
+  return`<div style="margin-bottom:12px">
+    <div class="tmpl-subject">📧 Subject: ${tmpl.subject}</div>
+    <div class="tmpl-text">${tmpl.email}</div>
+    <div style="display:flex;gap:6px;margin-top:7px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="copyText(${JSON.stringify('Subject: '+tmpl.subject+'\n\n'+tmpl.email)})">📋 Copy Email</button>
+      <button class="btn btn-primary btn-sm" data-eid="${(()=>{const k='e'+l.id+'s';window._EM=window._EM||{};window._EM[k]={to:l.email,subject:draft.subject,body:draft.body};return k;})()}" onclick="openEmail(this.dataset.eid)">✉️ Email</button>
+    </div>
+  </div>
+  <div style="margin-bottom:12px">
+    <div class="tmpl-subject">📱 DM Version</div>
+    <div class="tmpl-text">${tmpl.dm}</div>
+    <button class="btn btn-ghost btn-sm" style="margin-top:6px" onclick="copyText(${JSON.stringify(tmpl.dm)})">📋 Copy DM</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+    ${['followup1','followup2','final'].map((k,i)=>`<div>
+      <div class="tmpl-subject" style="color:${['var(--teal-light)','var(--gold)','var(--text-muted)'][i]}">${['Follow-Up 1 (Day 2)','Follow-Up 2 (Day 5)','Final Check-In (Day 10)'][i]}</div>
+      <div class="tmpl-text" style="font-size:.76rem;max-height:120px">${tmpl[k]}</div>
+      <button class="btn btn-ghost btn-xs" style="margin-top:5px" onclick="copyText(${JSON.stringify(tmpl[k])})">📋 Copy</button>
+    </div>`).join('')}
+  </div>`;
+}
+
+function switchSoccerTab(type,btn){
+  document.querySelectorAll('#soccer-outreach-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#soccer-outreach-panels .tab-panel').forEach(p=>p.classList.remove('active'));
+  const panel=document.getElementById('stp-'+type.replace(/[\s/]+/g,'-'));
+  if(panel) panel.classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════
+// OUTREACH MODAL (per lead)
+// ════════════════════════════════════════════════════════
+function openOutreachForLead(id){
+  const lead=DB.leads.find(l=>l._id===id||String(l.id)===String(id));if(!lead)return;
+  const isSoccer=lead.module==='soccer'||(lead.module==='both'&&SOCCER_TYPES.includes(lead.type));
+  const isCatering=lead.module==='catering'||(lead.module==='both'&&CATERING_TYPES.includes(lead.type));
+  const s=scoreLead(lead);
+  let tabs='';let panels='';
+
+  if(isCatering){
+    const draft=getCateringDraft(lead);
+    const glink=gmailLink(lead.email,draft.subject,draft.body);
+    tabs+=`<button class="tab-btn active" onclick="switchOutTab('cat',this)">🍽️ Catering</button>`;
+    panels+=`<div class="tab-panel active" id="out-cat">
+      <div class="tmpl-subject">Subject: ${draft.subject}</div>
+      <div class="tmpl-text" style="margin-top:5px;white-space:pre-line">${draft.body}</div>
+      <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="copyText(${JSON.stringify('Subject: '+draft.subject+'\n\n'+draft.body)})">📋 Copy</button>
+        <button class="btn btn-catering btn-sm" data-eid="${(()=>{const k='ec'+lead.id;window._EM=window._EM||{};window._EM[k]={to:lead.email,subject:draft.subject,body:draft.body};return k;})()}" onclick="openEmail(this.dataset.eid)">✉️ Email</button>
+      </div>
+    </div>`;
+  }
+
+  if(isSoccer){
+    const tmpl=SOCCER_TEMPLATES[lead.type];
+    if(tmpl){
+      const step=lead.seqStep||0;
+      const stepEmail=step===0?tmpl.email:step===1?tmpl.followup1:step===2?tmpl.followup2:tmpl.final;
+      const stepLabel=['Initial','Follow-Up 1','Follow-Up 2','Final'][Math.min(step,3)];
+      const glink=gmailLink(lead.email,tmpl.subject,stepEmail);
+      tabs+=`<button class="tab-btn ${isCatering?'':'active'}" onclick="switchOutTab('soc',this)">⚽ Soccer (${stepLabel})</button>`;
+      panels+=`<div class="tab-panel ${isCatering?'':'active'}" id="out-soc">
+        <div class="tmpl-subject">Subject: ${tmpl.subject}</div>
+        <div class="tmpl-text" style="margin-top:5px;white-space:pre-line">${stepEmail}</div>
+        <div style="margin-top:8px;margin-bottom:8px">
+          <div class="tmpl-subject">📱 DM</div>
+          <div class="tmpl-text">${tmpl.dm}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="copyText(${JSON.stringify('Subject: '+tmpl.subject+'\n\n'+stepEmail)})">📋 Copy Email</button>
+          <button class="btn btn-soccer btn-sm" data-eid="${(()=>{const k='es'+lead.id;window._EM=window._EM||{};window._EM[k]={to:lead.email,subject:tmpl.subject,body:stepEmail};return k;})()}" onclick="openEmail(this.dataset.eid)">✉️ Email</button>
+          <button class="btn btn-ghost btn-sm" onclick="copyText(${JSON.stringify(tmpl.dm)})">📋 Copy DM</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  document.getElementById('out-modal-title').innerHTML=`📬 ${lead.org}`;
+  document.getElementById('out-modal-body').innerHTML=`
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      ${getModuleTag(lead)}<span class="type-tag">${lead.type}</span>${priorityBadge(s.priority)}
+      <span style="font-size:.74rem;color:var(--text-muted)">Score: ${s.score}/100</span>
+      <span class="badge b-new" style="margin-left:auto">${lead.status}</span>
+    </div>
+    <div class="tab-bar">${tabs}</div>
+    ${panels}
+    <hr class="div"/>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="editLead(${id})">✏️ Edit Lead</button>
+      <button class="btn btn-gold btn-sm" onclick="markStepDone('${lead._id||lead.id}')">✅ Mark Step Done</button>
+    </div>`;
+  document.getElementById('outreach-modal').classList.add('open');
+}
+
+function switchOutTab(id,btn){
+  document.querySelectorAll('#out-modal-body .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#out-modal-body .tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('out-'+id)?.classList.add('active');
+}
+
+async function markStepDone(id){
+  const lead=DB.leads.find(l=>l._id===id||String(l.id)===String(id));if(!lead)return;
+  const seqStep=(lead.seqStep||0)+1;
+  const status=seqStep>=4?'Nurture':'Contacted';
+  const tmp={...lead,seqStep,status};
+  advanceSequence(tmp);
+  const r=await API.put('/leads/'+id,{seqStep,status,followup:tmp.followup,seqLabel:tmp.seqLabel});
+  if(r?.success) await DB.loadLeads();
+  document.getElementById('outreach-modal').classList.remove('open');
+  renderPage(activePage);
+  toast(`✅ Step done · Next: ${fmtDate(tmp.followup)}`);
+}
+
+// ════════════════════════════════════════════════════════
+// LEAD MODAL
+// ════════════════════════════════════════════════════════
+function openLeadModal(id,defaultModule){
+  document.getElementById('lead-modal-title').textContent=id?'Edit Lead':'Add Lead';
+  document.getElementById('lead-id').value=(id?String(id):'');
+  const fields=['org','contact','email','phone','website','social','type','module','status','gamedate','source','followup'];
+  const lead=id?DB.leads.find(l=>l._id===id||String(l.id)===String(id)):null;
+  fields.forEach(f=>{
+    const el=document.getElementById('f-'+f);
+    if(!el)return;
+    if(lead) el.value=lead[f]||'';
+    else if(f==='status') el.value='New';
+    else if(f==='module') el.value=defaultModule||'catering';
+    else el.value='';
+  });
+  document.getElementById('f-note-person').value='';
+  document.getElementById('f-note-text').value='';
+  document.getElementById('f-note-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-custom-module').value=lead?.customModule||'';
+  document.getElementById('existing-notes').innerHTML=lead&&lead.notes&&lead.notes.length?
+    `<div class="card-title" style="margin-bottom:7px;font-size:.8rem">📜 Notes</div>`+
+    lead.notes.map(n=>`<div class="note-entry"><div class="note-meta">${n.date} — <span>${n.person}</span></div><div class="note-text">${n.text}</div></div>`).join(''):'';
+  if(lead){
+    const s=scoreLead(lead);
+    document.getElementById('score-preview').style.display='block';
+    document.getElementById('score-preview-inner').innerHTML=`
+      <div style="display:flex;align-items:center;gap:9px">
+        <div class="score-bar" style="flex:1"><div class="score-fill" style="width:${s.score}%;background:${scoreColor(s.score)}"></div></div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:${scoreColor(s.score)}">${s.score}/100</div>
+        ${priorityBadge(s.priority)}
+      </div>
+      <div style="font-size:.7rem;color:var(--text-muted);margin-top:4px">${s.breakdown.join(' · ')}</div>`;
+  } else { document.getElementById('score-preview').style.display='none'; }
+  document.getElementById('lead-modal').classList.add('open');
+}
+function closeLeadModal(){document.getElementById('lead-modal').classList.remove('open');}
+function editLead(id){openLeadModal(id);}
+
+async function saveLead(){
+  const id=document.getElementById('lead-id').value;
+  const org=document.getElementById('f-org').value.trim();
+  if(!org){toast('Please enter an organization name');return;}
+  const noteText=document.getElementById('f-note-text').value.trim();
+  const noteObj=noteText?{date:document.getElementById('f-note-date').value,person:document.getElementById('f-note-person').value||currentUser?.displayName||'Frontline Staff',text:noteText}:null;
+  const data={
+    org,contact:document.getElementById('f-contact').value,
+    email:document.getElementById('f-email').value,phone:document.getElementById('f-phone').value,
+    website:document.getElementById('f-website').value,social:document.getElementById('f-social').value,
+    type:document.getElementById('f-type').value,module:document.getElementById('f-module').value,
+    status:document.getElementById('f-status').value,gamedate:document.getElementById('f-gamedate').value,
+    source:document.getElementById('f-source').value,followup:document.getElementById('f-followup').value,
+    customModule:document.getElementById('f-custom-module').value,
+  };
+
+  if(id){
+    const lead=DB.leads.find(l=>l._id===id||String(l.id)===String(id));
+    const merged={...data};
+    if(noteObj) merged.notes=[...(lead?.notes||[]),noteObj];
+    const r=await API.put('/leads/'+id,merged);
+    if(!r?.success){toast('❌ Error: '+(r?.message||'Failed to save'));return;}
+  } else {
+    if(noteObj) data.notes=[noteObj];
+    const importDate=new Date().toISOString().split('T')[0];
+    if(!data.followup){const tmp={...data,importDate,seqStep:0};advanceSequence(tmp);data.followup=tmp.followup;}
+    data.importDate=importDate;data.seqStep=0;
+    const r=await API.post('/leads',data);
+    if(!r?.success){
+      if(r?.status===409||r?.message?.includes('Duplicate')){
+        if(!confirm('⚠️ Possible duplicate detected.'+r.message+'Add anyway?')) return;
+        // retry with force flag (simplified: re-post with slight variation note)
+        data.notes=(data.notes||[]);
+        data.org=data.org; // allow submit
+        const r2=await fetch(API.base+'/leads',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+API.getToken()},body:JSON.stringify({...data,_forceCreate:true})});
+        const j2=await r2.json();
+        if(!j2?.success){toast('❌ Error: '+(j2?.message||'Failed'));return;}
+      } else {
+        toast('❌ Error: '+(r?.message||'Failed to save'));return;
+      }
+    }
+  }
+  await DB.loadLeads();
+  closeLeadModal();renderPage(activePage);renderHome();
+  toast('✅ Lead saved!');
+}
+
+async function deleteLead(id){
+  if(!confirm('Delete this lead?')) return;
+  const r=await API.del('/leads/'+id);
+  if(!r?.success){toast('❌ Error: '+(r?.message||'Failed'));return;}
+  await DB.loadLeads();
+  renderPage(activePage);renderHome();toast('Lead deleted');
+}
+
+// ════════════════════════════════════════════════════════
+// IMPORT
+// ════════════════════════════════════════════════════════
+let importParsed=[];
+
+function parseImport(){
+  const raw=document.getElementById('import-text').value;
+  if(!raw.trim()){toast('Paste some leads first');return;}
+  const targetModule=document.getElementById('import-module').value;
+  const blocks=raw.split(/\n---+\n?/).map(b=>b.trim()).filter(Boolean);
+  importParsed=[];
+  for(const block of blocks){
+    const lead={};
+    for(const line of block.split('\n')){
+      const ci=line.indexOf(':');if(ci<0)continue;
+      const key=line.substring(0,ci).trim().toLowerCase();
+      const val=line.substring(ci+1).trim();
+      if(key==='organization')lead.org=val;
+      else if(key==='contact')lead.contact=val;
+      else if(key==='email')lead.email=val;
+      else if(key==='phone')lead.phone=val;
+      else if(key==='website')lead.website=val;
+      else if(key==='social')lead.social=val;
+      else if(key==='type')lead.type=val;
+      else if(key==='event date')lead.gamedate=val;
+      else if(key==='priority')lead.kimiPriority=val;
+      else if(key==='notes')lead.importNotes=val;
+    }
+    if(!lead.org&&!lead.email)continue;
+    lead.source='Kimi Import';lead.status='New';lead.notes=[];
+    lead.importDate=new Date().toISOString().split('T')[0];lead.seqStep=0;
+    lead.module=targetModule;lead.contact=lead.contact||'';
+    // normalize type
+    const typeMap={'union':'Union Fan Group','fan':'Union Fan Group','supporter':'Supporter Club','visiting':'Visiting MLS Team','mls':'Visiting MLS Team','youth':'Youth Soccer Team','team':'Youth Soccer Team','tournament':'Tournament','school':'School','college':'University','university':'University','coach':'Coach','church':'Church','nonprofit':'Nonprofit','civic':'Civic Group','senior':'Senior Program','medical':'Medical','city':'City Agency','agency':'City Agency','business':'Local Business','venue':'Event Venue','hotel':'Hotel/Venue','partner':'Community Partner','performer':'Performer'};
+    if(lead.type){const tl=lead.type.toLowerCase();for(const[k,v]of Object.entries(typeMap)){if(tl.includes(k)){lead.type=v;break;}}}
+    if(!lead.type)lead.type=targetModule==='soccer'?'Union Fan Group':'Nonprofit';
+    // allow cross-module duplicates — only flag same-module
+    lead._duplicate=findDuplicate(lead,false);
+    importParsed.push(lead);
+  }
+  renderImportPreview();
+}
+
+function renderImportPreview(){
+  const valid=importParsed.filter(l=>!l._duplicate);
+  const dups=importParsed.filter(l=>l._duplicate);
+  document.getElementById('imp-count-new').textContent=valid.length;
+  document.getElementById('imp-count-dup').textContent=dups.length;
+  document.getElementById('import-preview-list').innerHTML=importParsed.map(lead=>{
+    const isDup=!!lead._duplicate;const s=scoreLead(lead);
+    return`<div class="imp-card ${isDup?'dup':''}">
+      ${isDup?`<div style="margin-bottom:7px"><span class="dup-tag">⚠️ DUPLICATE</span> <span style="font-size:.74rem;color:var(--warning)">${lead._duplicate.reason} — notes will merge</span></div>`:''}
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.92rem">${lead.org||'(no org)'}</div>
+        <span class="type-tag">${lead.type}</span>${getModuleTag(lead)}${priorityBadge(s.priority)}
+        <div class="score-wrap" style="flex:1;min-width:70px">
+          <div class="score-bar"><div class="score-fill" style="width:${s.score}%;background:${scoreColor(s.score)}"></div></div>
+          <div class="score-num" style="color:${scoreColor(s.score)}">${s.score}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2px">
+        ${lead.contact?`<div class="imp-field"><span class="imp-key">Contact</span>${lead.contact}</div>`:''}
+        ${lead.email?`<div class="imp-field"><span class="imp-key">Email</span>${lead.email}</div>`:''}
+        ${lead.gamedate?`<div class="imp-field"><span class="imp-key">Event Date</span>${lead.gamedate}</div>`:''}
+        ${lead.importNotes?`<div class="imp-field" style="grid-column:1/-1"><span class="imp-key">Notes</span>${lead.importNotes}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text-muted);padding:10px">No valid leads found.</div>';
+  document.getElementById('import-preview-section').style.display='block';
+}
+
+function hideImportPreview(){document.getElementById('import-preview-section').style.display='none';}
+
+function confirmImport(){
+  let imported=0,merged=0;
+  const leads=DB.leads;
+  for(const lead of importParsed){
+    if(lead._duplicate){
+      const idx=leads.findIndex(l=>l.id===lead._duplicate.lead.id);
+      if(idx>=0&&lead.importNotes){
+        leads[idx].notes.push({date:new Date().toISOString().split('T')[0],person:'Kimi Import',text:lead.importNotes});
+      }
+      merged++;
+    } else {
+      const newLead={...lead,id:Date.now()+Math.random()};
+      delete newLead._duplicate;
+      if(lead.importNotes) newLead.notes=[{date:newLead.importDate,person:'Kimi Import',text:lead.importNotes}];
+      advanceSequence(newLead);
+      leads.push(newLead);imported++;
+    }
+  }
+  DB.leads=leads;
+  hideImportPreview();
+  document.getElementById('import-text').value='';importParsed=[];
+  renderHome();
+  toast(`✅ Imported ${imported} leads · ${merged} duplicates merged`);
+  setTimeout(()=>showPage('all-leads'),1400);
+}
+
+// ════════════════════════════════════════════════════════
+// REMINDERS
+// ════════════════════════════════════════════════════════
+function renderReminders(){
+  const today=new Date();
+  const todayStr=today.toISOString().split('T')[0];
+  const weekOut=new Date(today);weekOut.setDate(weekOut.getDate()+7);
+  const weekStr=weekOut.toISOString().split('T')[0];
+  const active=DB.leads.filter(l=>l.followup&&l.status!=='Booked'&&l.status!=='Not Interested');
+  const remHtml=arr=>arr.length?arr.map(l=>`
+    <div class="rem-item">
+      <div class="rem-dot" style="background:${STATUS_COLOR[l.status]||'#888'}"></div>
+      <div class="rem-info">
+        <div class="rem-org">${l.org}</div>
+        <div class="rem-sub">${l.type} · ${fmtDate(l.followup)} · ${getModuleTag(l)}</div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">Edit</button>
+        <button class="btn btn-ghost btn-xs" onclick="openOutreachForLead('${l._id||l.id}')">📬</button>
+      </div>
+    </div>`).join(''):'<div style="color:var(--text-muted);font-size:.8rem;padding:7px 0">None 🎉</div>';
+  document.getElementById('rem-overdue').innerHTML=remHtml(active.filter(l=>l.followup<todayStr).sort((a,b)=>a.followup.localeCompare(b.followup)));
+  document.getElementById('rem-week').innerHTML=remHtml(active.filter(l=>l.followup>=todayStr&&l.followup<=weekStr).sort((a,b)=>a.followup.localeCompare(b.followup)));
+  document.getElementById('rem-all').innerHTML=remHtml(active.sort((a,b)=>a.followup.localeCompare(b.followup)));
+}
+
+// ════════════════════════════════════════════════════════
+// MODULE BUILDER
+// ════════════════════════════════════════════════════════
+function renderModulesPage(){
+  const mods=DB.modules;
+  const grid=document.getElementById('existing-mods-grid');
+  if(!mods.length){grid.innerHTML='';return;}
+  grid.innerHTML=mods.map(m=>{
+    const ml=DB.leads.filter(l=>l.module===m.id||l.customModule===m.name);
+    return`<div class="existing-mod-card">
+      <div class="mod-color-bar" style="background:${m.color}"></div>
+      <div style="margin-top:4px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:${m.color}">${m.icon} ${m.name}</div>
+        <button class="btn btn-danger btn-xs" onclick="deleteModule('${m._id||m.id}')">✕</button>
+      </div>
+      <div style="font-size:.76rem;color:var(--text-muted);margin-bottom:8px">${m.desc}</div>
+      <div style="font-size:.72rem;color:${m.color};margin-bottom:6px;font-family:'Barlow Condensed',sans-serif;font-weight:700">Goal: ${m.goal}</div>
+      <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:10px">Sources: ${m.sources} · Channel: ${m.channel}</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <div style="background:var(--input-bg);border-radius:7px;padding:7px 10px;flex:1;text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:${m.color}">${ml.length}</div>
+          <div style="font-size:.62rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">LEADS</div>
+        </div>
+        <div style="background:var(--input-bg);border-radius:7px;padding:7px 10px;flex:1;text-align:center">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--success)">${ml.filter(l=>l.status==='Booked').length}</div>
+          <div style="font-size:.62rem;color:var(--text-muted);font-family:'Barlow Condensed',sans-serif;font-weight:700">BOOKED</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="width:100%" onclick="showPage('mod-custom-${m._id||m.id}')">Open Module →</button>
+    </div>`;
+  }).join('');
+}
+
+function openModuleBuilder(){document.getElementById('module-modal').classList.add('open');}
+
+async function saveModule(){
+  const name=document.getElementById('mod-name').value.trim();
+  const icon=document.getElementById('mod-icon').value.trim()||'📦';
+  const desc=document.getElementById('mod-desc').value.trim();
+  const goal=document.getElementById('mod-goal').value.trim();
+  const sources=document.getElementById('mod-sources').value.trim();
+  const channel=document.getElementById('mod-channel').value;
+  const color=document.getElementById('mod-color').value;
+  if(!name){toast('Please enter a module name');return;}
+  const r=await API.post('/data/modules',{name,icon,desc,goal,sources,channel,color});
+  if(!r?.success){toast('❌ Error: '+(r?.message||'Failed'));return;}
+  document.getElementById('module-modal').classList.remove('open');
+  ['mod-name','mod-icon','mod-desc','mod-goal','mod-sources'].forEach(i=>document.getElementById(i).value='');
+  await DB.loadModules();
+  buildCustomModulePages();buildCustomModuleNav();renderModulesPage();renderHome();
+  toast(`✅ Module "${name}" created!`);
+}
+
+async function deleteModule(id){
+  if(!confirm('Delete this module? Leads assigned to it will remain but lose their module tag.')) return;
+  const r=await API.del('/data/modules/'+id);
+  if(!r?.success){toast('❌ Error: '+(r?.message||'Failed'));return;}
+  await DB.loadModules();
+  buildCustomModulePages();buildCustomModuleNav();renderModulesPage();renderHome();
+  toast('Module deleted');
+}
+
+function buildCustomModulePages(){
+  const container=document.getElementById('custom-module-pages');
+  container.innerHTML=DB.modules.map(m=>`
+    <div class="page" id="page-mod-custom-${m.id}">
+      <div class="mod-banner custom" style="border-color:${m.color}40">
+        <div class="mod-banner-icon">${m.icon}</div>
+        <div>
+          <div class="mod-banner-title" style="color:${m.color}">${m.name}</div>
+          <div class="mod-banner-desc">${m.desc}</div>
+        </div>
+        <div class="mod-banner-goal" style="color:${m.color}">Goal: ${m.goal}</div>
+      </div>
+      <div class="card" style="margin-bottom:13px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <div class="card-title" style="margin-bottom:0;color:${m.color}">${m.icon} ${m.name} Leads</div>
+          <button class="btn btn-sm" style="background:${m.color};color:var(--navy)" onclick="openLeadModal(null,'${m.id||m._id}')">+ Add Lead</button>
+        </div>
+        <div class="filter-bar">
+          <input type="text" class="filter-bar" style="flex:1;background:var(--input-bg);border:1px solid var(--card-border);border-radius:7px;padding:6px 9px;color:var(--white);font-family:'Barlow',sans-serif;font-size:.81px;outline:none;" 
+            id="search-custom-${m.id}" placeholder="🔍 Search..."
+            oninput="renderCustomModuleLeads('${m.id}')"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Organization</th><th>Type</th><th>Score</th><th>Status</th><th>Follow-Up</th><th>Actions</th></tr></thead>
+          <tbody id="custom-mod-tbody-${m.id}"></tbody>
+        </table></div>
+        <div id="custom-mod-empty-${m.id}" class="empty" style="display:none"><div class="ico">${m.icon}</div><p>No leads in this module yet.</p></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📅 Outreach Sequence</div>
+        <div class="seq-tl">
+          <div class="seq-step"><div class="seq-dot done"></div><div class="seq-day">Day 0</div><div class="seq-label">Initial Outreach</div><div class="seq-action">Channel: ${m.channel}</div></div>
+          <div class="seq-step"><div class="seq-dot cur"></div><div class="seq-day">Day 2</div><div class="seq-label">Follow-Up 1</div></div>
+          <div class="seq-step"><div class="seq-dot"></div><div class="seq-day">Day 5</div><div class="seq-label">Follow-Up 2</div></div>
+          <div class="seq-step"><div class="seq-dot"></div><div class="seq-day">Day 10</div><div class="seq-label">Final Check-In</div></div>
+          <div class="seq-step"><div class="seq-dot" style="background:rgba(187,136,255,.4);border-color:#bb88ff"></div><div class="seq-day">No Response</div><div class="seq-label" style="color:#bb88ff">Nurture</div></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderCustomModulePage(modId){
+  const m=DB.modules.find(x=>x.id===modId);if(!m)return;
+  renderCustomModuleLeads(modId);
+}
+
+function renderCustomModuleLeads(modId){
+  const q=(document.getElementById('search-custom-'+modId)?.value||'').toLowerCase();
+  const leads=DB.leads.filter(l=>(l.module===modId||l.customModule===DB.modules.find(m=>m.id===modId)?.name)&&(!q||l.org.toLowerCase().includes(q))).sort((a,b)=>scoreLead(b).score-scoreLead(a).score);
+  const tbody=document.getElementById('custom-mod-tbody-'+modId);
+  const empty=document.getElementById('custom-mod-empty-'+modId);
+  if(!tbody)return;
+  if(!leads.length){tbody.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  tbody.innerHTML=leads.map(l=>`
+    <tr>
+      <td><div class="td-org">${l.org}</div><div class="td-sub">${l.contact||''}</div></td>
+      <td><span class="type-tag">${l.type}</span></td>
+      <td>${scoreBar(l)}</td>
+      <td><span class="badge ${BADGE_CLASS[l.status]||'b-new'}">${l.status}</span></td>
+      <td style="font-size:.76rem;color:var(--gold)">${fmtDate(l.followup)||'—'}</td>
+      <td>
+        <button class="btn btn-ghost btn-xs" onclick="editLead('${l._id||l.id}')">✏️</button>
+        <button class="btn btn-danger btn-xs" onclick="deleteLead('${l._id||l.id}')">🗑</button>
+      </td>
+    </tr>`).join('');
+}
+
+function buildCustomModuleNav(){
+  document.getElementById('module-nav-items').innerHTML=DB.modules.map(m=>`
+    <div class="nav-item" onclick="showPage('mod-custom-${m._id||m.id}')">
+      <span class="nav-icon">${m.icon}</span> ${m.name}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// CALENDAR
+// ════════════════════════════════════════════════════════
+const UNION_SCHEDULE=[
+  {date:'2025-04-26',day:'26',month:'APR',home:true,match:'Union vs. Columbus Crew',venue:'Subaru Park',kickoff:'7:30 PM'},
+  {date:'2025-05-03',day:'03',month:'MAY',home:true,match:'Union vs. NY Red Bulls',venue:'Subaru Park',kickoff:'7:30 PM'},
+  {date:'2025-05-10',day:'10',month:'MAY',home:false,match:'Union @ Nashville SC',venue:'GEODIS Park',kickoff:'8:30 PM'},
+  {date:'2025-05-17',day:'17',month:'MAY',home:true,match:'Union vs. FC Dallas',venue:'Subaru Park',kickoff:'7:30 PM'},
+  {date:'2025-05-24',day:'24',month:'MAY',home:true,match:'Union vs. Charlotte FC',venue:'Subaru Park',kickoff:'7:30 PM'},
+  {date:'2025-05-31',day:'31',month:'MAY',home:false,match:'Union @ D.C. United',venue:'Audi Field',kickoff:'7:30 PM'},
+  {date:'2025-06-07',day:'07',month:'JUN',home:true,match:'Union vs. Toronto FC',venue:'Subaru Park',kickoff:'7:30 PM'},
+  {date:'2025-06-14',day:'14',month:'JUN',home:true,match:'Union vs. CF Montréal',venue:'Subaru Park',kickoff:'7:30 PM'},
+  {date:'2025-06-21',day:'21',month:'JUN',home:false,match:'Union @ New England Revolution',venue:'Gillette Stadium',kickoff:'7:30 PM'},
+  {date:'2025-06-28',day:'28',month:'JUN',home:true,match:'Union vs. Orlando City',venue:'Subaru Park',kickoff:'7:30 PM'},
+];
+
+function gameCard(g){
+  const homeColor=g.home?'var(--teal-dark)':'var(--navy-light)';
+  const textColor=g.home?'var(--teal-light)':'#aac0d8';
+  return`<div class="cal-item">
+    <div class="cal-date-box" style="background:${homeColor}">
+      <div class="cal-day" style="color:var(--white)">${g.day}</div>
+      <div class="cal-month" style="color:${g.home?'var(--teal-light)':'#aac0d8'}">${g.month}</div>
+    </div>
+    <div class="cal-info">
+      <div class="cal-match" style="color:${textColor}">${g.match}</div>
+      <div class="cal-detail">⏰ ${g.kickoff} · 📍 ${g.venue}</div>
+      <div class="cal-tags">
+        <span class="cal-tag" style="background:rgba(0,180,160,.15);color:var(--teal-light);border:1px solid var(--teal-dark)">MLS</span>
+        ${g.home?`<span class="cal-tag" style="background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.3)">🏠 HOME</span>`:`<span class="cal-tag" style="background:rgba(255,100,100,.1);color:#ff9999;border:1px solid rgba(255,100,100,.3)">✈️ Away</span>`}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCalendar(){
+  document.getElementById('cal-union').innerHTML=UNION_SCHEDULE.map(g=>gameCard(g)).join('');
+  const custom=DB.games.sort((a,b)=>a.date.localeCompare(b.date));
+  if(!custom.length){
+    document.getElementById('cal-custom').innerHTML='';
+    document.getElementById('cal-custom-empty').style.display='block';
+  } else {
+    document.getElementById('cal-custom-empty').style.display='none';
+    document.getElementById('cal-custom').innerHTML=custom.map(g=>`
+      <div class="cal-item">
+        <div class="cal-date-box" style="background:var(--gold-dark)">
+          <div class="cal-day">${new Date(g.date+'T12:00:00').getDate().toString().padStart(2,'0')}</div>
+          <div class="cal-month">${new Date(g.date+'T12:00:00').toLocaleString('en-US',{month:'short'}).toUpperCase()}</div>
+        </div>
+        <div class="cal-info">
+          <div class="cal-match" style="color:var(--gold)">${g.title}</div>
+          <div class="cal-detail">${g.time||'TBD'}</div>
+          ${g.notes?`<div class="cal-detail" style="margin-top:2px">${g.notes}</div>`:''}
+        </div>
+        <button class="btn btn-danger btn-xs" onclick="deleteGame('${g._id||g.id}')">✕</button>
+      </div>`).join('');
+  }
+}
+function openGameModal(){document.getElementById('game-modal').classList.add('open');}
+function closeGameModal(){document.getElementById('game-modal').classList.remove('open');}
+async function saveGame(){
+  const title=document.getElementById('g-title').value.trim();
+  const date=document.getElementById('g-date').value;
+  const time=document.getElementById('g-time').value;
+  const notes=document.getElementById('g-notes').value;
+  if(!title||!date){toast('Please enter a title and date');return;}
+  const r=await API.post('/data/games',{title,date,time,notes});
+  if(!r?.success){toast('❌ Error: '+(r?.message||'Failed'));return;}
+  await DB.loadGames();
+  closeGameModal();renderCalendar();
+  toast('📅 Event added!');
+}
+async function deleteGame(id){
+  const r=await API.del('/data/games/'+id);
+  if(!r?.success){toast('❌ Error deleting event');return;}
+  await DB.loadGames();renderCalendar();
+}
+
+// ════════════════════════════════════════════════════════
+// SOCIAL GENERATOR
+// ════════════════════════════════════════════════════════
+const SOCIAL_POSTS={
+  soccer:{
+    'Game Day Hype':{
+      Instagram:(o,d)=>`🔥⚽ GAME DAY AT FRONTLINE! ⚽🔥\n\nUnion vs. ${o||'the opposition'} ${d?'on '+d:''} and WE ARE READY! 🌴🍹\n\n📍 2213 W. 3rd Street, Chester PA\n🍹 Game Day drink specials ALL NIGHT\n\nDOOP! 💙\n\n#PhilaUnion #DOOP #Frontline #ChesterPA #WatchParty`,
+      Facebook:(o,d)=>`⚽🌴 GAME DAY — Frontline is YOUR home for Union soccer!\n\nPhiladelphia Union vs. ${o||'the opposition'} ${d?'on '+d:''}\n\n🍹 Drink Specials · 🍽️ Full Menu · 📺 Game on all screens\n\n📍 2213 W. 3rd Street, Chester PA 19013\n#PhiladelphiaUnion #DOOP #FrontlineIslandBar`,
+      'X (Twitter)':(o,d)=>`⚽ GAME DAY! Union vs. ${o||'the opposition'} ${d||''}\nWatch party at Frontline, Chester PA! 🌴🍹\n📍 2213 W. 3rd St\nDOOP! 💙 #PhilaUnion #ChesterPA`
+    },
+    'Visiting Team Welcome':{
+      Instagram:(o)=>`👋 WELCOME TO CHESTER, ${(o||'VISITING FANS').toUpperCase()}! 👋\n\nFrontline Island Bar & Grill is your home base near Subaru Park! 🌴🍹\n\n📍 2213 W. 3rd Street, Chester PA\n\n#MLSSoccer #PhilaUnion #ChesterPA`,
+      Facebook:(o)=>`🎉 Welcome ${o||'visiting supporters'} to Chester!\n\nFrontline Island Bar & Grill — minutes from Subaru Park!\n📍 2213 W. 3rd Street, Chester PA 19013`,
+      'X (Twitter)':(o)=>`👋 Welcome to Chester, ${o||'visiting fans'}! 🌴\nFrontline — minutes from Subaru Park!\n📍 2213 W. 3rd St #MLSSoccer`
+    },
+    'Post-Game Party':{
+      Instagram:()=>`🎉🎉 POST GAME PARTY AT FRONTLINE! 🎉🎉\n\nFinal whistle blew — now let's CELEBRATE! 🌴🍹⚽\n\n📍 2213 W. 3rd Street, Chester PA\n\n#PostGameParty #PhilaUnion #DOOP`,
+      Facebook:()=>`⚽ GAME OVER — PARTY STARTS NOW! 🎉\n\nFrontline Island Bar & Grill, Chester PA!\n📍 2213 W. 3rd Street\n#PostGame #PhiladelphiaUnion`,
+      'X (Twitter)':()=>`🎉 POST GAME PARTY — Frontline, Chester PA! 🌴🍹\n📍 2213 W. 3rd St\n#DOOP #PhilaUnion`
+    },
+    'Youth Team Welcome':{
+      Instagram:(o)=>`🏆 WELCOME ${(o||'YOUR TEAM').toUpperCase()}! 🏆\n\nFrontline is honored to host ${o||'our amazing youth soccer family'} tonight! 🌴⚽\n\n📍 2213 W. 3rd Street, Chester PA\n\n#YouthSoccer #TeamDinner #ChesterPA`,
+      Facebook:(o)=>`🌟 TONIGHT WE CELEBRATE ${(o||'our team').toUpperCase()}! 🌟\n\nFrontline Island Bar & Grill is proud to host tonight's team dinner!\n\n#YouthSoccer #ChesterPA`,
+      'X (Twitter)':(o)=>`⚽🌴 Welcome ${o||'our youth team'} to Frontline tonight! Team dinner time! 🏆 #YouthSoccer #ChesterPA`
+    },
+  },
+  catering:{
+    'Catering Availability':{
+      Instagram:(o)=>`🍽️ BOOKING CATERING EVENTS NOW! 🍽️\n\n${o?`Shoutout to ${o} for choosing Frontline! 🙌`:'Is your organization looking for fresh Caribbean catering? We\'ve got you! 🌴'}\n\nJerk chicken, oxtail, rice & peas, plantains & more.\n\n✉️ ${FRONTLINE_EMAIL}\n🛒 ${EZCATER}\n📍 2213 W. 3rd Street, Chester PA`,
+      Facebook:(o)=>`🍽️ Frontline Island Bar & Grill is available for catering!\n\nGroup meals, church events, office lunches, banquets — fresh Caribbean food for every occasion.\n\n✉️ ${FRONTLINE_EMAIL}\n📍 2213 W. 3rd Street, Chester PA 19013`,
+      'X (Twitter)':()=>`🍽️ Caribbean catering in Chester PA! Frontline Island Bar & Grill.\n✉️ ${FRONTLINE_EMAIL}\n#CateringChesterPA`
+    },
+    'Church & Community':{
+      Instagram:(o)=>`🙏 FRONTLINE SERVES THE COMMUNITY! 🙏\n\n${o?`Welcome to ${o}! We\'re honored to serve your congregation.`:'We proudly cater for churches, nonprofits, and community organizations across Chester PA.'}\n\nFresh Caribbean meals made with love. 🌴❤️\n\n✉️ ${FRONTLINE_EMAIL}\n🛒 ${EZCATER}\n📍 2213 W. 3rd Street, Chester PA`,
+      Facebook:(o)=>`❤️ Frontline caters for ${o||'churches and community organizations'} in Chester!\n\nRepast meals, banquets, fellowship dinners — fresh Caribbean food that brings people together.\n\n✉️ ${FRONTLINE_EMAIL}\n📍 2213 W. 3rd Street, Chester PA 19013`,
+      'X (Twitter)':()=>`🙏 Church catering in Chester PA. Repasts, banquets, fellowship dinners. Frontline Island Bar & Grill.\n✉️ ${FRONTLINE_EMAIL}`
+    },
+    'EZCater Promo':{
+      Instagram:()=>`🛒 ORDER CATERING ONLINE — IT\'S EASY! 🛒\n\nFrontline Island Bar & Grill is now on EZCater — order fresh Caribbean catering for your office, event, or group in just a few clicks!\n\n🛒 ${EZCATER}\n📍 2213 W. 3rd Street, Chester PA\n\n#EZCater #CateringChesterPA #FrontlineIslandBar`,
+      Facebook:()=>`🍽️ Order catering from Frontline Island Bar & Grill on EZCater!\n\nFresh Caribbean meals delivered or ready for pickup. Easy online ordering.\n\n🛒 ${EZCATER}\n📍 2213 W. 3rd Street, Chester PA 19013`,
+      'X (Twitter)':()=>`🍽️ Order Frontline Island Bar & Grill catering on EZCater! 🛒\n${EZCATER}\n#EZCater #CateringChesterPA`
+    },
+    'Staff Meal Promo':{
+      Instagram:()=>`🏢 FEED YOUR TEAM SOMETHING DIFFERENT! 🏢\n\nTired of the same office lunch? Let Frontline Island Bar & Grill bring fresh Caribbean flavors to your workplace!\n\nJerk chicken, oxtail, rice & peas, plantains & more.\n\n🛒 ${EZCATER}\n✉️ ${FRONTLINE_EMAIL}\n📍 Chester PA`,
+      Facebook:()=>`🍽️ Office lunch? Staff appreciation? Frontline Island Bar & Grill has you covered!\n\nFresh Caribbean catering delivered to your workplace in Chester and Delaware County.\n\n🛒 ${EZCATER}`,
+      'X (Twitter)':()=>`🍽️ Office catering in Chester/Delco! Fresh Caribbean food from Frontline Island Bar & Grill.\n🛒 ${EZCATER}`
+    },
+  }
+};
+
+function updatePostTypes(){
+  const mod=document.getElementById('social-module').value;
+  const types=Object.keys(SOCIAL_POSTS[mod]||{});
+  document.getElementById('social-type').innerHTML=types.map(t=>`<option>${t}</option>`).join('');
+}
+
+function generatePost(){
+  const mod=document.getElementById('social-module').value;
+  const type=document.getElementById('social-type').value;
+  const platform=document.getElementById('social-platform').value;
+  const org=document.getElementById('social-org').value;
+  const date=document.getElementById('social-date').value;
+  const tpl=(SOCIAL_POSTS[mod]||{})[type];
+  if(!tpl){document.getElementById('post-output').textContent='Select a post type to generate.';return;}
+  const fn=tpl[platform]||tpl['Instagram'];
+  document.getElementById('post-output').textContent=fn(org,date);
+}
+
+function copyPost(){
+  const text=document.getElementById('post-output').textContent;
+  if(text==='Your post will appear here...'){toast('Generate a post first!');return;}
+  navigator.clipboard.writeText(text).then(()=>toast('✅ Post copied!'));
+}
+
+// ════════════════════════════════════════════════════════
+// EXPORT CSV
+// ════════════════════════════════════════════════════════
+function exportCSV(){
+  const headers=['Organization','Contact','Email','Phone','Website','Social','Type','Module','Status','Score','Priority','Event Date','Follow-Up','Source','Notes'];
+  const rows=DB.leads.map(l=>{
+    const s=scoreLead(l);
+    const notes=(l.notes||[]).map(n=>n.text).join(' | ').replace(/"/g,"'");
+    return[l.org,l.contact,l.email,l.phone,l.website,l.social,l.type,l.module,l.status,s.score,s.priority,l.gamedate,l.followup,l.source,notes].map(v=>`"${(v||'').toString().replace(/"/g,"'")}"`).join(',');
+  });
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='frontline-crm-'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  URL.revokeObjectURL(url);
+  toast('✅ CSV exported!');
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+// App boot — called after successful login
+async function bootApp(){
+  await DB.loadAll();
+  buildCustomModulePages();
+  buildCustomModuleNav();
+  updatePostTypes();
+  renderHome();
+  // Update sidebar user info
+  const userEl=document.getElementById('sidebar-user-name');
+  if(userEl&&currentUser) userEl.textContent=currentUser.displayName;
+}
+
+// ════════════════════════════════════════════════════════
+// AUTH — LOGIN / LOGOUT
+// ════════════════════════════════════════════════════════
+function showLoginScreen(){
+  document.getElementById('login-screen').classList.add('active');
+  document.getElementById('hamburger').style.display='none';
+  document.getElementById('main').style.display='none';
+  document.getElementById('sidebar').style.display='none';
+  setTimeout(()=>document.getElementById('login-username').focus(),100);
+}
+
+function showAppScreen(){
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('hamburger').style.display='';
+  document.getElementById('main').style.display='';
+  document.getElementById('sidebar').style.display='';
+}
+
+async function doLogin(){
+  const username=document.getElementById('login-username').value.trim();
+  const password=document.getElementById('login-password').value;
+  const errEl=document.getElementById('login-error');
+  const btn=document.getElementById('login-btn');
+
+  errEl.classList.remove('show');
+  if(!username||!password){errEl.textContent='Please enter username and password.';errEl.classList.add('show');return;}
+
+  btn.textContent='Signing in...';btn.disabled=true;
+
+  try{
+    const res=await fetch(API.base+'/auth/login',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username,password})
+    });
+    const data=await res.json();
+
+    if(!data.success){
+      errEl.textContent=data.message||'Invalid credentials.';
+      errEl.classList.add('show');
+      btn.textContent='🔓 Sign In';btn.disabled=false;
+      return;
+    }
+
+    API.setToken(data.token);
+    currentUser=data.user;
+
+    // Update sidebar user info
+    document.getElementById('sidebar-user-name').textContent=currentUser.displayName;
+    document.getElementById('sidebar-user-role').textContent=currentUser.role;
+    document.getElementById('sidebar-user-avatar').textContent=currentUser.displayName[0].toUpperCase();
+
+    showAppScreen();
+    document.getElementById('app-loading').classList.add('active');
+    await bootApp();
+    document.getElementById('app-loading').classList.remove('active');
+
+  }catch(err){
+    errEl.textContent='Network error. Is the server running?';
+    errEl.classList.add('show');
+    btn.textContent='🔓 Sign In';btn.disabled=false;
+  }
+}
+
+function doLogout(){
+  if(!confirm('Sign out of Frontline CRM?')) return;
+  API.setToken(null);
+  currentUser=null;
+  DB.leads=[];DB.games=[];DB.modules=[];
+  document.getElementById('login-username').value='';
+  document.getElementById('login-password').value='';
+  document.getElementById('login-error').classList.remove('show');
+  document.getElementById('login-btn').textContent='🔓 Sign In';
+  document.getElementById('login-btn').disabled=false;
+  showLoginScreen();
+  toast('Signed out successfully');
+}
+
+// ════════════════════════════════════════════════════════
+// CSV IMPORT
+// ════════════════════════════════════════════════════════
+let csvParsed=[];
+
+function handleCSVDrop(e){
+  e.preventDefault();
+  document.getElementById('csv-drop-zone').classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(file) processCSVFile(file);
+}
+
+function handleCSVFile(e){
+  const file=e.target.files[0];
+  if(file) processCSVFile(file);
+  e.target.value='';
+}
+
+function processCSVFile(file){
+  if(!file.name.endsWith('.csv')&&file.type!=='text/csv'){
+    toast('⚠️ Please upload a .csv file');return;
+  }
+  if(file.size>5*1024*1024){toast('⚠️ File too large (max 5MB)');return;}
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    parseCSVContent(e.target.result);
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVContent(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length){toast('CSV file is empty');return;}
+
+  // Parse header row
+  const headers=parseCSVRow(lines[0]).map(h=>h.toLowerCase().trim());
+  const colMap={};
+  const mappings={
+    'organization':['organization','org','name','company'],
+    'contact':['contact','contact person','person','name','representative'],
+    'email':['email','e-mail','email address'],
+    'phone':['phone','phone number','tel','telephone'],
+    'type':['type','lead type','category','kind'],
+    'gamedate':['event date','game date','date','event'],
+    'notes':['notes','note','description','comments'],
+    'website':['website','url','web'],
+    'social':['social','instagram','twitter','facebook','handle'],
+    'status':['status']
+  };
+  for(const[field,aliases]of Object.entries(mappings)){
+    for(const alias of aliases){
+      const idx=headers.findIndex(h=>h===alias||h.includes(alias));
+      if(idx>=0&&colMap[field]===undefined){colMap[field]=idx;break;}
+    }
+  }
+
+  const targetModule=document.getElementById('csv-import-module').value;
+  csvParsed=[];
+
+  for(let i=1;i<lines.length;i++){
+    const cols=parseCSVRow(lines[i]);
+    if(!cols.length) continue;
+    const lead={};
+    for(const[field,idx]of Object.entries(colMap)){
+      lead[field]=(cols[idx]||'').trim();
+    }
+    if(!lead.org&&!lead.email) continue;
+    if(!lead.org) lead.org=lead.email;
+
+    // Normalize type
+    const typeMap={
+      'union fan group':'Union Fan Group','fan group':'Union Fan Group','supporter':'Supporter Club',
+      'visiting':'Visiting MLS Team','mls':'Visiting MLS Team','youth soccer':'Youth Soccer Team',
+      'youth team':'Youth Soccer Team','tournament':'Tournament','coach':'Coach',
+      'church':'Church','nonprofit':'Nonprofit','school':'School',
+      'senior':'Senior Program','university':'University','college':'University',
+      'city':'City Agency','agency':'City Agency','medical':'Medical','civic':'Civic Group',
+      'hotel':'Hotel/Venue','venue':'Event Venue','business':'Local Business',
+      'community':'Community Partner','partner':'Community Partner','performer':'Performer'
+    };
+    if(lead.type){
+      const tl=lead.type.toLowerCase();
+      let matched=false;
+      for(const[k,v]of Object.entries(typeMap)){
+        if(tl.includes(k)){lead.type=v;matched=true;break;}
+      }
+      if(!matched) lead.type=targetModule==='soccer'?'Union Fan Group':'Nonprofit';
+    } else {
+      lead.type=targetModule==='soccer'?'Union Fan Group':'Nonprofit';
+    }
+
+    lead.module=targetModule;
+    lead.source='CSV Import';
+    lead.status=lead.status||'New';
+    lead.importDate=new Date().toISOString().split('T')[0];
+    lead.seqStep=0;
+
+    // Check duplicate against in-memory leads
+    lead._duplicate=findDuplicate(lead,false);
+    csvParsed.push(lead);
+  }
+
+  renderCSVPreview();
+}
+
+function parseCSVRow(line){
+  const cols=[];let current='';let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      if(inQuotes&&line[i+1]==='"'){current+='"';i++;}
+      else inQuotes=!inQuotes;
+    } else if(ch===','&&!inQuotes){
+      cols.push(current);current='';
+    } else {
+      current+=ch;
+    }
+  }
+  cols.push(current);
+  return cols;
+}
+
+function renderCSVPreview(){
+  const valid=csvParsed.filter(l=>!l._duplicate);
+  const dups=csvParsed.filter(l=>l._duplicate);
+  document.getElementById('csv-count-new').textContent=valid.length;
+  document.getElementById('csv-count-dup').textContent=dups.length;
+
+  document.getElementById('csv-preview-list').innerHTML=csvParsed.map(lead=>{
+    const isDup=!!lead._duplicate;
+    const s=scoreLead(lead);
+    return`<div class="imp-card ${isDup?'dup':''}">
+      ${isDup?`<div style="margin-bottom:6px"><span class="dup-tag">⚠️ DUPLICATE — will skip</span> <span style="font-size:.74rem;color:var(--warning)">${lead._duplicate.reason}</span></div>`:''}
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem">${lead.org}</div>
+        <span class="type-tag">${lead.type}</span>
+        ${getModuleTag(lead)}
+        ${priorityBadge(s.priority)}
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:2px">
+        ${lead.contact?`<div class="imp-field"><span class="imp-key">Contact</span>${lead.contact}</div>`:''}
+        ${lead.email?`<div class="imp-field"><span class="imp-key">Email</span>${lead.email}</div>`:''}
+        ${lead.phone?`<div class="imp-field"><span class="imp-key">Phone</span>${lead.phone}</div>`:''}
+        ${lead.gamedate?`<div class="imp-field"><span class="imp-key">Event Date</span>${lead.gamedate}</div>`:''}
+        ${lead.notes?`<div class="imp-field" style="grid-column:1/-1"><span class="imp-key">Notes</span>${lead.notes}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text-muted);padding:10px">No valid rows found. Check CSV format.</div>';
+
+  document.getElementById('csv-preview-section').style.display='block';
+}
+
+function hideCSVPreview(){
+  document.getElementById('csv-preview-section').style.display='none';
+  csvParsed=[];
+}
+
+async function confirmCSVImport(){
+  const toImport=csvParsed.filter(l=>!l._duplicate);
+  if(!toImport.length){toast('No new leads to import (all duplicates)');return;}
+
+  const leadsData=toImport.map(l=>{
+    const tmp={...l};delete tmp._duplicate;
+    if(tmp.notes){
+      tmp.notes=[{date:tmp.importDate,person:'CSV Import',text:tmp.notes}];
+    } else {
+      tmp.notes=[];
+    }
+    advanceSequence(tmp);
+    return tmp;
+  });
+
+  const btn=document.querySelector('#csv-preview-section .btn-primary');
+  if(btn){btn.textContent='Importing...';btn.disabled=true;}
+
+  const r=await API.post('/leads/import/bulk',{leads:leadsData});
+
+  if(btn){btn.textContent='✅ Import Valid Leads';btn.disabled=false;}
+
+  if(r?.success){
+    const res=r.results;
+    await DB.loadLeads();
+    hideCSVPreview();
+    renderHome();
+    toast(`✅ Imported ${res.imported} · ${res.duplicates} dupes skipped · ${res.errors} errors`);
+    setTimeout(()=>showPage('all-leads'),1400);
+  } else {
+    toast('❌ Import failed: '+(r?.message||'Unknown error'));
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// APP INIT — Check for existing session
+// ════════════════════════════════════════════════════════
+(async function initApp(){
+  // Hide app UI by default
+  document.getElementById('hamburger').style.display='none';
+  document.getElementById('main').style.display='none';
+  document.getElementById('sidebar').style.display='none';
+
+  const token=API.getToken();
+  if(!token){
+    showLoginScreen();
+    return;
+  }
+
+  // Verify token
+  try{
+    document.getElementById('app-loading').classList.add('active');
+    const res=await fetch(API.base+'/auth/me',{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    const data=await res.json();
+
+    if(!data.success){
+      API.setToken(null);
+      document.getElementById('app-loading').classList.remove('active');
+      showLoginScreen();
+      return;
+    }
+
+    currentUser=data.user;
+    document.getElementById('sidebar-user-name').textContent=currentUser.displayName;
+    document.getElementById('sidebar-user-role').textContent=currentUser.role;
+    document.getElementById('sidebar-user-avatar').textContent=currentUser.displayName[0].toUpperCase();
+
+    showAppScreen();
+    await bootApp();
+    document.getElementById('app-loading').classList.remove('active');
+
+  }catch(err){
+    console.error('Init error:',err);
+    document.getElementById('app-loading').classList.remove('active');
+    showLoginScreen();
+  }
+})();
+</script>
+</body>
+</html>
