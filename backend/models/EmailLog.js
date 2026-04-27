@@ -11,6 +11,11 @@ const EmailLog = sequelize.define(
     },
     leadId: {
       type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Leads",
+        key: "id",
+      },
     },
     leadOrg: {
       type: DataTypes.STRING,
@@ -33,6 +38,11 @@ const EmailLog = sequelize.define(
     },
     sentBy: {
       type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: "Users",
+        key: "id",
+      },
     },
     sentByName: {
       type: DataTypes.STRING,

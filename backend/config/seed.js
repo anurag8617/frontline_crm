@@ -25,7 +25,7 @@ async function seedDatabase() {
           displayName: "Pam",
           role: "user",
         },
-      ]);
+      ], { individualHooks: true });
       console.log("✅ Users created: ravi (admin), pam (user)");
     }
 

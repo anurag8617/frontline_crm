@@ -16,42 +16,42 @@ const Lead = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       set(value) {
-        this.setDataValue("org", value.trim());
+        this.setDataValue("org", value ? value.trim() : "");
       },
     },
     contact: {
       type: DataTypes.STRING,
       defaultValue: "",
       set(value) {
-        this.setDataValue("contact", value.trim());
+        this.setDataValue("contact", value ? value.trim() : "");
       },
     },
     email: {
       type: DataTypes.STRING,
       defaultValue: "",
       set(value) {
-        this.setDataValue("email", value.toLowerCase().trim());
+        this.setDataValue("email", value ? value.toLowerCase().trim() : "");
       },
     },
     phone: {
       type: DataTypes.STRING,
       defaultValue: "",
       set(value) {
-        this.setDataValue("phone", value.trim());
+        this.setDataValue("phone", value ? value.trim() : "");
       },
     },
     website: {
       type: DataTypes.STRING,
       defaultValue: "",
       set(value) {
-        this.setDataValue("website", value.trim());
+        this.setDataValue("website", value ? value.trim() : "");
       },
     },
     social: {
       type: DataTypes.STRING,
       defaultValue: "",
       set(value) {
-        this.setDataValue("social", value.trim());
+        this.setDataValue("social", value ? value.trim() : "");
       },
     },
     type: {
@@ -110,7 +110,11 @@ const Lead = sequelize.define(
     },
     createdBy: {
       type: DataTypes.INTEGER,
-      // Foreign key defined in associations
+      allowNull: true,
+      references: {
+        model: "Users",
+        key: "id",
+      },
     },
   },
   {
