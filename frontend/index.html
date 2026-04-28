@@ -1192,7 +1192,10 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
 //
 // Auto-detection: if window.BACKEND_URL is set (injected by Netlify _headers
 // or a config script), use that; otherwise fall back to same-origin /api.
-const BACKEND_URL = (typeof window !== 'undefined' && window.BACKEND_URL) ? window.BACKEND_URL.replace(/\/$/, '') : '';
+const BACKEND_URL =
+  window.location.hostname.includes("localhost")
+    ? "http://localhost:3001"
+    : "https://frontline-crm-backend-1.onrender.com";
 
 const API = {
   base: BACKEND_URL ? BACKEND_URL + '/api' : '/api',
