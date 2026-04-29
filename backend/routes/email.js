@@ -1,28 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
-const { EmailLog, Lead } = require("../models");
+
+// IMPORTANT: Update these paths if your models are located differently
+const EmailLog = require("../models/EmailLog");
+const Lead = require("../models/Lead");
 const { protect } = require("../middleware/auth");
 
-// router.use(protect);
-
-// Create transporter (lazy, so env is loaded first)
-let _transporter = null;
-function getTransporter() {
-  if (!_transporter) {
-    _transporter = nodemailer.createTransport({
-      service: "gmail", // This tells Nodemailer to automatically configure for Google Mail
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS, // This MUST be an App Password, not your login password
-      },
-    });
-  }
-  return _transporter;
-}
+// Protect all routes with JWT
+router.use(protect);
 
 // POST /api/email/send
-router.post("/send", protect, async (req, res) => {
+router.post("/send", async (req, res) => {
   const { to, subject, body, leadId, module: mod } = req.body;
 
   if (!to || !subject || !body) {
@@ -31,26 +19,42 @@ router.post("/send", protect, async (req, res) => {
       .json({ success: false, message: "to, subject, and body are required." });
   }
 
-  const fromName = process.env.SMTP_FROM_NAME || "Frontline Island Bar & Grill";
-  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
-
   try {
-    const transporter = getTransporter();
-    await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
-      to,
-      subject,
-      text: body,
-      html: bodyToHtml(body),
-    });
+    const wpApiUrl = process.env.WP_EMAIL_API_URL;
+    const wpApiKey = process.env.WP_EMAIL_API_KEY;
 
-    // Log it
-    let leadOrg = "";
-    if (leadId) {
-      const lead = await Lead.findByPk(leadId);
-      leadOrg = lead?.org || "";
+    if (!wpApiUrl || !wpApiKey) {
+      throw new Error("WP_EMAIL_API_URL or WP_EMAIL_API_KEY missing in .env");
     }
 
+    // 1. Send to WordPress API
+    const response = await fetch(wpApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${wpApiKey}`,
+      },
+      body: JSON.stringify({
+        to: to,
+        subject: subject,
+        message: bodyToHtml(body),
+        headers: ["Content-Type: text/html; charset=UTF-8"],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`WordPress API Error (${response.status}): ${errText}`);
+    }
+
+    // 2. Fetch Lead for logging (SEQUELIZE SYNTAX)
+    let leadOrg = "";
+    if (leadId) {
+      const lead = await Lead.findByPk(leadId); // Changed from Mongoose findById
+      if (lead) leadOrg = lead.org;
+    }
+
+    // 3. Log success in SQL Database (SEQUELIZE SYNTAX)
     const log = await EmailLog.create({
       leadId: leadId || null,
       leadOrg,
@@ -58,33 +62,37 @@ router.post("/send", protect, async (req, res) => {
       subject,
       body,
       status: "sent",
-      sentBy: req.user.id,
+      sentBy: req.user.id, // Sequelize uses .id (not ._id like Mongoose)
       sentByName: req.user.displayName,
       module: mod || "",
     });
 
     res.json({
       success: true,
-      message: "Email sent successfully!",
+      message: "Email sent via WP API!",
       logId: log.id,
     });
   } catch (err) {
     console.error("Email send error:", err);
 
-    // Log failure
+    // 4. Log failure in DB safely
     try {
-      await EmailLog.create({
-        leadId: leadId || null,
-        to,
-        subject,
-        body,
-        status: "failed",
-        error: err.message,
-        sentBy: req.user.id,
-        sentByName: req.user.displayName,
-        module: mod || "",
-      });
-    } catch (_) {}
+      if (EmailLog) {
+        await EmailLog.create({
+          leadId: leadId || null,
+          to,
+          subject,
+          body,
+          status: "failed",
+          error: err.message,
+          sentBy: req.user?.id || null, // Safe fallback
+          sentByName: req.user?.displayName || "Unknown",
+          module: mod || "",
+        });
+      }
+    } catch (dbErr) {
+      console.error("Could not save error to database:", dbErr);
+    }
 
     res.status(500).json({
       success: false,
@@ -97,33 +105,22 @@ router.post("/send", protect, async (req, res) => {
 router.get("/logs", async (req, res) => {
   try {
     const { leadId, limit = 50 } = req.query;
-    const where = leadId ? { leadId } : {};
+
+    const whereClause = leadId ? { leadId } : {};
+
+    // SEQUELIZE SYNTAX for finding and sorting
     const logs = await EmailLog.findAll({
-      where,
+      where: whereClause,
       order: [["createdAt", "DESC"]],
-      limit: parseInt(limit),
+      limit: parseInt(limit, 10),
     });
+
     res.json({ success: true, data: logs, count: logs.length });
   } catch (err) {
+    console.error("Fetch logs error:", err);
     res
       .status(500)
       .json({ success: false, message: "Failed to fetch email logs." });
-  }
-});
-
-// GET /api/email/test — verify SMTP config
-router.get("/test", async (req, res) => {
-  try {
-    const transporter = getTransporter();
-    await transporter.verify();
-    res.json({
-      success: true,
-      message: "SMTP connection verified successfully.",
-    });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, message: `SMTP test failed: ${err.message}` });
   }
 });
 
@@ -139,8 +136,6 @@ function bodyToHtml(text) {
 <body style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f9f9f9;">
   <div style="background:white;padding:30px;border-radius:8px;border-top:4px solid #00b4a0;">
     <div style="white-space:pre-line;font-size:14px;line-height:1.7;color:#333;">${escaped}</div>
-    <hr style="margin:24px 0;border:none;border-top:1px solid #eee;"/>
-    <div style="font-size:12px;color:#888;">Sent via Frontline Island Bar & Grill CRM</div>
   </div>
 </body>
 </html>`;

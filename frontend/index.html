@@ -600,7 +600,21 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
 .modal-overlay {
   align-items: center !important;
 }
+.btn-teal { background: var(--teal); border: 1px solid var(--teal-dark); color: white; }
+.btn-teal:hover { background: var(--teal-dark); }
+.btn-gold { background: var(--gold); border: 1px solid var(--gold-dark); color: var(--navy); }
+.btn-gold:hover { background: var(--gold-dark); }
+
+/* IMPORT PREVIEW TABLE */
+.preview-table-wrap { max-height: 400px; overflow-y: auto; background: var(--input-bg); border-radius: 8px; border: 1px solid var(--card-border); }
+.preview-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+.preview-table th { position: sticky; top: 0; background: var(--navy-mid); z-index: 10; border-bottom: 2px solid var(--card-border); }
+.preview-table td, .preview-table th { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
+.preview-row-error { background: rgba(239, 68, 68, 0.1); }
+.preview-row-dup { background: rgba(245, 158, 11, 0.1); }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -738,7 +752,11 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
     <h1>🎯 All Leads</h1>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <button class="btn btn-ghost btn-sm" onclick="exportCSV()">💾 Export CSV</button>
+      <button class="btn btn-teal btn-sm" onclick="document.getElementById('import-csv-input').click()">📥 Import CSV</button>
+      <button class="btn btn-gold btn-sm" onclick="document.getElementById('import-excel-input').click()">📊 Import Excel</button>
       <button class="btn btn-primary btn-sm" onclick="openLeadModal()">+ Add Lead</button>
+      <input type="file" id="import-csv-input" style="display:none" accept=".csv" onchange="handleCSVImport(event)">
+      <input type="file" id="import-excel-input" style="display:none" accept=".xlsx, .xls" onchange="handleExcelImport(event)">
     </div>
   </div>
   <div class="pills" id="all-leads-pills">
@@ -1218,6 +1236,40 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
     <div style="display:flex;gap:7px;justify-content:flex-end">
       <button class="btn btn-ghost btn-sm" onclick="closeGameModal()">Cancel</button>
       <button class="btn btn-primary btn-sm" onclick="saveGame()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV/EXCEL PREVIEW MODAL -->
+<div class="modal-overlay" id="csv-preview-modal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="hideCSVPreview()">✕</button>
+    <div class="modal-title">📊 Import Preview — <span id="csv-preview-count">0</span> Leads</div>
+    
+    <div style="margin-bottom:15px;display:flex;gap:15px;align-items:flex-end">
+      <div class="form-group" style="flex:1">
+        <label>Assign to Module (Default)</label>
+        <select class="fc" id="csv-import-module">
+          <option value="catering">🍽️ Catering</option>
+          <option value="soccer">⚽ Soccer</option>
+          <option value="both">🔀 Both Modules</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:7px">
+        <button class="btn btn-ghost" onclick="hideCSVPreview()">Cancel</button>
+        <button class="btn btn-primary" onclick="confirmCSVImport()">✅ Import Valid Leads</button>
+      </div>
+    </div>
+
+    <div class="preview-table-wrap">
+      <table class="preview-table">
+        <thead>
+          <tr>
+            <th>Organization</th><th>Email</th><th>Phone</th><th>Status</th><th>Notes</th>
+          </tr>
+        </thead>
+        <tbody id="csv-preview-tbody"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -2865,6 +2917,144 @@ async function confirmCSVImport(){
     setTimeout(()=>showPage('all-leads'),1400);
   } else {
     toast('❌ Import failed: '+(r?.message||'Unknown error'));
+  }
+}
+
+// ════════════════════════════════════════════════════════
+// CSV & EXCEL IMPORT LOGIC
+// ════════════════════════════════════════════════════════
+let leadsData = [];
+
+function hideCSVPreview() {
+  document.getElementById('csv-preview-modal').classList.remove('open');
+  document.getElementById('import-csv-input').value = '';
+  document.getElementById('import-excel-input').value = '';
+  leadsData = [];
+}
+
+function handleCSVImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      processImportedData(results.data);
+    },
+    error: function(err) {
+      toast('❌ Error parsing CSV: ' + err.message);
+    }
+  });
+}
+
+function handleExcelImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    try {
+      const data = new Uint8Array(evt.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const json = XLSX.utils.sheet_to_json(worksheet);
+      processImportedData(json);
+    } catch (err) {
+      toast('❌ Error parsing Excel: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function processImportedData(data) {
+  if (!data || data.length === 0) {
+    toast('⚠️ No data found in file.');
+    return;
+  }
+
+  // Map fields (fuzzy matching)
+  leadsData = data.map(row => {
+    // Try to find columns regardless of case/exact match
+    const find = (keys) => {
+      const foundKey = Object.keys(row).find(k => 
+        keys.some(key => k.toLowerCase().trim() === key.toLowerCase())
+      );
+      return foundKey ? row[foundKey] : '';
+    };
+
+    return {
+      org: find(['Organization', 'Org', 'Company', 'Name', 'Business']),
+      contact: find(['Contact', 'Person', 'Name', 'Lead']),
+      email: find(['Email', 'E-mail']),
+      phone: find(['Phone', 'Telephone', 'Cell']),
+      website: find(['Website', 'URL']),
+      social: find(['Social', 'Instagram', 'Facebook', 'Handle']),
+      type: find(['Type', 'Category']) || 'Church',
+      status: find(['Status']) || 'New',
+      source: find(['Source', 'Referral']),
+      gamedate: find(['Event Date', 'Date', 'Game Date']),
+      notesText: find(['Notes', 'Comment', 'Details', 'Description'])
+    };
+  }).filter(l => l.org); // Must have org name
+
+  if (leadsData.length === 0) {
+    toast('⚠️ No valid leads found (Organization name is required).');
+    return;
+  }
+
+  renderCSVPreview();
+}
+
+function renderCSVPreview() {
+  const tbody = document.getElementById('csv-preview-tbody');
+  tbody.innerHTML = leadsData.map(l => `
+    <tr>
+      <td><div class="td-org">${l.org}</div><div class="td-sub">${l.contact || ''}</div></td>
+      <td>${l.email || '-'}</td>
+      <td>${l.phone || '-'}</td>
+      <td>${l.status}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.notesText || '-'}</td>
+    </tr>
+  `).join('');
+  
+  document.getElementById('csv-preview-count').textContent = leadsData.length;
+  document.getElementById('csv-preview-modal').classList.add('open');
+}
+
+async function confirmCSVImport() {
+  if (!leadsData.length) return;
+
+  const module = document.getElementById('csv-import-module').value;
+  const btn = document.querySelector('#csv-preview-modal .btn-primary');
+  const originalText = btn.textContent;
+  
+  btn.textContent = 'Importing...';
+  btn.disabled = true;
+
+  // Prepare data for API
+  const finalLeads = leadsData.map(l => ({
+    ...l,
+    module: module,
+    notes: l.notesText ? [{ text: l.notesText, person: currentUser.displayName, date: new Date().toISOString().split('T')[0] }] : []
+  }));
+
+  try {
+    const r = await API.post('/leads/import/bulk', { leads: finalLeads });
+    if (r?.success) {
+      toast(`✅ Successfully imported ${r.results.imported} leads!`);
+      await DB.loadLeads();
+      renderAllLeads();
+      hideCSVPreview();
+    } else {
+      toast('❌ Import failed: ' + (r?.message || 'Unknown error'));
+    }
+  } catch (err) {
+    toast('❌ Error: ' + err.message);
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
   }
 }
 
