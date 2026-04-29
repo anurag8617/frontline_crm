@@ -2974,33 +2974,39 @@ function processImportedData(data) {
     return;
   }
 
-  // Map fields (fuzzy matching)
+  // Map fields (fuzzy matching OR index-based fallback)
   leadsData = data.map(row => {
-    // Try to find columns regardless of case/exact match
-    const find = (keys) => {
-      const foundKey = Object.keys(row).find(k => 
-        keys.some(key => k.toLowerCase().trim() === key.toLowerCase())
-      );
-      return foundKey ? row[foundKey] : '';
+    const isArray = Array.isArray(row);
+    const keys = isArray ? [] : Object.keys(row);
+    const vals = isArray ? row : Object.values(row);
+
+    const find = (searchKeys, index) => {
+      if (!isArray) {
+        const foundKey = keys.find(k => 
+          searchKeys.some(sk => k.toLowerCase().trim() === sk.toLowerCase())
+        );
+        if (foundKey) return row[foundKey];
+      }
+      return vals[index] || '';
     };
 
     return {
-      org: find(['Organization', 'Org', 'Company', 'Name', 'Business']),
-      contact: find(['Contact', 'Person', 'Name', 'Lead']),
-      email: find(['Email', 'E-mail']),
-      phone: find(['Phone', 'Telephone', 'Cell']),
-      website: find(['Website', 'URL']),
-      social: find(['Social', 'Instagram', 'Facebook', 'Handle']),
-      type: find(['Type', 'Category']) || 'Church',
-      status: find(['Status']) || 'New',
-      source: find(['Source', 'Referral']),
-      gamedate: find(['Event Date', 'Date', 'Game Date']),
-      notesText: find(['Notes', 'Comment', 'Details', 'Description'])
+      org: find(['Organization', 'Org', 'Company', 'Name', 'Business'], 0),
+      contact: find(['Contact', 'Person', 'Name', 'Lead'], 1),
+      email: find(['Email', 'E-mail'], 2),
+      phone: find(['Phone', 'Telephone', 'Cell'], 3),
+      website: find(['Website', 'URL'], 4),
+      social: find(['Social', 'Instagram', 'Facebook', 'Handle'], 5),
+      type: find(['Type', 'Category'], 6) || 'Church',
+      status: find(['Status'], 7) || 'New',
+      source: find(['Source', 'Referral'], 8),
+      gamedate: find(['Event Date', 'Date', 'Game Date'], 9),
+      notesText: find(['Notes', 'Comment', 'Details', 'Description'], 10)
     };
-  }).filter(l => l.org); // Must have org name
+  }).filter(l => l.org && l.org.toString().length > 1);
 
   if (leadsData.length === 0) {
-    toast('⚠️ No valid leads found (Organization name is required).');
+    toast('⚠️ No valid leads found. Check if your CSV/Excel has an "Organization" column.');
     return;
   }
 
