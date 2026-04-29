@@ -549,6 +549,57 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
   .pipeline-wrap{flex-direction:column;}
   .pipeline-col{min-width:unset;}
 }
+
+/* FIX EMAIL MODAL FIELDS */
+.email-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.email-field label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* APPLY SAME STYLE LIKE .fc */
+.email-field input,
+.email-field textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.email-field input:focus,
+.email-field textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(0,180,160,0.1);
+  background: rgba(255,255,255,0.02);
+}
+
+/* IMPORTANT: FIX TEXTAREA VISIBILITY */
+.email-field textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* FIX MODAL CENTERING */
+.modal-overlay {
+  align-items: center !important;
+}
 </style>
 </head>
 <body>
