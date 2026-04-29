@@ -648,8 +648,8 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
     <input type="hidden" id="send-email-module"/>
     <div class="email-field">
       <label>To</label>
-      <textarea class="fc"  type="email" id="send-email-to" placeholder="recipient@email.com"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      <input type="email" id="send-email-to" placeholder="recipient@email.com"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     </div>
     <div class="email-field">
       <label>Subject</label>
@@ -658,7 +658,7 @@ hr.div{border:none;border-top:1px solid var(--card-border);margin:14px 0;}
     </div>
     <div class="email-field">
       <label>Message</label>
-      <textarea id="send-email-body"
+      <textarea id="send-email-body" rows="10"
         autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
